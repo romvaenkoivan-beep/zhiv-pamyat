@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Живая память — истории, которые остаются</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f7f3ed;
+      color: #342e2a;
+    }
+
+    header {
+      padding: 24px 8%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e5ddd3;
+    }
+
+    .logo {
+      font-size: 23px;
+      font-weight: bold;
+    }
+
+    .intro {
+      max-width: 850px;
+      margin: 90px auto;
+      padding: 0 24px;
+      text-align: center;
+    }
+
+    .label {
+      color: #90735f;
+      letter-spacing: 2px;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-family: Georgia, serif;
+      font-size: clamp(38px, 7vw, 68px);
+      font-weight: normal;
+      line-height: 1.15;
+      margin: 24px 0;
+    }
+
+    .description {
+      max-width: 600px;
+      margin: 0 auto;
+      color: #756b63;
+      font-size: 18px;
+      line-height: 1.7;
+    }
+
+    .button {
+      display: inline-block;
+      margin-top: 30px;
+      padding: 16px 25px;
+      background: #806b5b;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: background 0.3s;
+    }
+
+    .button:hover {
+      background: #604c3e;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 1000px;
+      margin: 0 auto 80px;
+      padding: 0 24px;
+    }
+
+    .feature {
+      padding: 26px;
+      background: #fffdfa;
+      border: 1px solid #e9e0d6;
+      border-radius: 12px;
+    }
+
+    .feature h2 {
+      font-family: Georgia, serif;
+      font-weight: normal;
+    }
+
+    .feature p {
+      color: #756b63;
+      line-height: 1.7;
+    }
+
+    footer {
+      padding: 30px;
+      text-align: center;
+      color: #82776e;
+      border-top: 1px solid #e5ddd3;
+    }
+
+    @media ( max-width: 650px) {
+      header {
+        padding: 20px;
+      }
+
+      header div:last-child {
+        font-size: 12px;
+      }
+
+      .intro {
+        margin: 60px auto;
+      }
+
+      .features {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="logo">Живая память</div>
+    <div>Истории, которые остаются</div>
+  </header>
+
+  <main>
+
+    <section class="intro">
+      <div class="label">
+        Семейная память сквозь поколения
+      </div>
+
+      <h1>
+        Человек уходит.
+
+        Его история остаётся.
+      </h1>
+
+      <p class="description">
+        Сохраняйте голоса, фотографии, видео и истории
+        близких, чтобы будущие поколения могли узнать
+        и почувствовать, какими они были.
+      </p>
+
+      <a class="button" href="#about">
+        Открыть мир воспоминаний
+      </a>
+    </section>
+
+    <section class="features" id="about">
+
+      <article class="feature">
+        <h2>История жизни</h2>
+        <p>
+          Детство, семья, важные события и достижения,
+          собранные в одну историю.
+        </p>
+      </article>
+
+      <article class="feature">
+        <h2>Голос и видео</h2>
+        <p>
+          Слова, улыбки и памятные моменты,
+          которые хочется сохранить.
+        </p>
+      </article>
+
+      <article class="feature">
+        <h2>Память поколений</h2>
+        <p>
+          Семейный архив, к которому можно возвращаться
+          и который можно пополнять.
+        </p>
+      </article>
+
+    </section>
+
+  </main>
+
+  <footer>
+    Живая память · Истории, которые остаются
+  </footer>
+
+</body>
+</html>
