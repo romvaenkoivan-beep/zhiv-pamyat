@@ -15,7 +15,48 @@ header{border-bottom:1px solid var(--line);background:rgba(247,243,235,.94)}.nav
 .how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:34px}.step{padding-top:24px;border-top:1px solid #cfc2a9}.step-number{color:var(--gold);font:12px Arial,sans-serif;letter-spacing:2px}.step h3{margin:13px 0 9px;color:var(--green);font-size:23px;font-weight:normal}.step p{margin:0;color:var(--muted);font-size:15px}
 .quote-section{padding:78px 0;background:var(--green);color:var(--paper);text-align:center}.quote-mark{color:#d4bd91;font-size:40px;line-height:1}.quote-section blockquote{max-width:760px;margin:15px auto 18px;font-size:clamp(27px,4vw,43px);line-height:1.35;font-weight:normal}.quote-section p{margin:0;color:#d8d5c9;font:11px Arial,sans-serif;letter-spacing:2px}
 .final-cta{text-align:center;padding:80px 0}.final-cta h2{max-width:700px;margin:0 auto;color:var(--green);font-size:clamp(32px,5vw,49px);font-weight:normal;line-height:1.2}.final-cta p:not(.eyebrow){max-width:580px;margin:18px auto 27px;color:var(--muted);font-size:17px}footer{border-top:1px solid var(--line);padding:24px 0}.footer-inner{display:flex;justify-content:space-between;align-items:center;gap:20px;color:#858278;font:12px Arial,sans-serif}.footer-brand{color:var(--green);font: bold 16px Georgia,serif}
-@media(max-width:760px){.container{width:min(100% - 32px,560px)}.nav{min-height:72px}.nav-links a:not(.nav-cta){display:none}.nav-links{gap:0}.nav-cta{padding:9px 11px;font-size:12px}.brand{font-size:19px}.hero{padding:67px 0 58px}.hero:before{left:4%;top:38px;font-size:26px}.hero:after{right:5%;bottom:45px;font-size:23px}h1{letter-spacing:-1px}.hero-copy{margin-top:20px}.section{padding:56px 0}.features,.how-grid{grid-template-columns:1fr;gap:14px}.feature{padding:23px}.feature-symbol{margin-bottom:14px}.how-grid{gap:28px}.quote-section{padding:62px 0}.footer-inner{flex-direction:column;text-align:center;gap:8px}}
+/* Форма обратной связи */
+.contact-section{
+  padding:80px 0;
+  background:var(--paper);
+  border-top:1px solid var(--line);
+}
+.contact-form{
+  max-width:620px;
+  margin:0 auto;
+  padding:34px;
+  background:var(--bg);
+  border:1px solid var(--line);
+}
+.form-group{margin-bottom:20px}
+.form-group label{
+  display:block;
+  margin-bottom:8px;
+  color:var(--green);
+  font:14px Arial,sans-serif;
+}
+.form-group input,
+.form-group textarea{
+  width:100%;
+  padding:14px;
+  border:1px solid var(--line);
+  background:var(--paper);
+  color:var(--ink);
+  font:15px Arial,sans-serif;
+  outline:none;
+}
+.form-group input:focus,
+.form-group textarea:focus{border-color:var(--gold)}
+.form-group textarea{min-height:120px;resize:vertical}
+.form-note{
+  margin:16px 0 0;
+  color:var(--muted);
+  font:12px Arial,sans-serif;
+}
+.contact-form .button{width:100%;cursor:pointer}
+@media(max-width:760px){
+  .contact-form{padding:23px 18px}
+}@media(max-width:760px){.container{width:min(100% - 32px,560px)}.nav{min-height:72px}.nav-links a:not(.nav-cta){display:none}.nav-links{gap:0}.nav-cta{padding:9px 11px;font-size:12px}.brand{font-size:19px}.hero{padding:67px 0 58px}.hero:before{left:4%;top:38px;font-size:26px}.hero:after{right:5%;bottom:45px;font-size:23px}h1{letter-spacing:-1px}.hero-copy{margin-top:20px}.section{padding:56px 0}.features,.how-grid{grid-template-columns:1fr;gap:14px}.feature{padding:23px}.feature-symbol{margin-bottom:14px}.how-grid{gap:28px}.quote-section{padding:62px 0}.footer-inner{flex-direction:column;text-align:center;gap:8px}}
 </style>
 </head>
 <body>
@@ -51,7 +92,36 @@ header{border-bottom:1px solid var(--line);background:rgba(247,243,235,.94)}.nav
 <p>«Живая память» создаётся для того, чтобы фотографии, голоса и семейные истории могли остаться с будущими поколениями.</p>
 <a class="button button-primary" href="memory.html">Посмотреть пример страницы памяти</a>
 </div></section>
-</main>
+<section class="contact-section" id="contacts">
+  <div class="container">
+    <div class="section-heading">
+      <p class="eyebrow">Мы готовы помочь</p>
+      <h2>Расскажите нам, что хотите сохранить</h2>
+      <p>Оставьте заявку, и наш менеджер свяжется с вами, чтобы ответить на вопросы и рассказать о создании страницы памяти.</p>
+    </div>
+
+    <form class="contact-form" id="contactForm">
+      <div class="form-group">
+        <label for="contactName">Ваше имя</label>
+        <input type="text" id="contactName" name="name" placeholder="Как к вам обращаться?" required>
+      </div>
+
+      <div class="form-group">
+        <label for="contactPhone">Номер телефона</label>
+        <input type="tel" id="contactPhone" name="phone" placeholder="+7 или другой номер" required>
+      </div>
+
+      <div class="form-group">
+        <label for="contactMessage">Что вы хотели бы сохранить?</label>
+        <textarea id="contactMessage" name="message" placeholder="Расскажите немного о вашей задумке..."></textarea>
+      </div>
+
+      <button class="button button-primary" type="submit">Отправить заявку</button>
+      <p class="form-note">Нажимая кнопку, вы соглашаетесь на обработку указанных данных для связи с вами.</p>
+      <p class="form-note" id="formMessage" aria-live="polite"></p>
+    </form>
+  </div>
+</section></main>
 <footer><div class="container footer-inner"><span class="footer-brand">✳ Живая память</span><span>Истории, которые остаются.</span><span>© 2026 Живая память</span></div></footer>
 </body>
 </html>
