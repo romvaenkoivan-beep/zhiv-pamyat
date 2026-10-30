@@ -100,7 +100,10 @@ header{border-bottom:1px solid var(--line);background:rgba(247,243,235,.94)}.nav
       <p>Оставьте заявку, и наш менеджер свяжется с вами, чтобы ответить на вопросы и рассказать о создании страницы памяти.</p>
     </div>
 
-    <form class="contact-form" id="contactForm">
+    <form class="contact-form" action="https://api.web3forms.com/submit" method="POST">
+  <input type="hidden" name="access_key" value="37e8fa48-ae0c-4fb7-a616-96f9df533231">
+  <input type="hidden" name="subject" value="Новая заявка — Живая память">
+  <input type="hidden" name="from_name" value="Сайт Живая память">
       <div class="form-group">
         <label for="contactName">Ваше имя</label>
         <input type="text" id="contactName" name="name" placeholder="Как к вам обращаться?" required>
