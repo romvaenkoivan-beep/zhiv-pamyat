@@ -1,0 +1,471 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f2f0ea">
+  <meta name="description" content="Живая память — история человека, фотографии и воспоминания, которые остаются с нами.">
+  <title>Живая память — Александр</title>
+
+  <style>
+    :root {
+      --background: #f2f0ea;
+      --paper: #faf9f6;
+      --text: #303630;
+      --muted: #77766f;
+      --accent: #747b69;
+      --line: #d9d5cb;
+      --serif: Georgia, "Times New Roman", serif;
+      --sans: Arial, Helvetica, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.8;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    a:hover {
+      opacity: 0.75;
+    }
+
+    .site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 22px max(6%, calc((100% - 1120px) / 2));
+      border-bottom: 1px solid var(--line);
+    }
+
+    .logo {
+      font-size: 19px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .header-note,
+    .eyebrow,
+    .section-number {
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    main {
+      width: min(100% - 48px, 900px);
+      margin: 0 auto;
+    }
+
+    .hero {
+      padding: 62px 0 48px;
+      text-align: center;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      margin: 0 0 18px;
+    }
+
+    .portrait-frame {
+      width: min(100%, 280px);
+      margin: 0 auto 28px;
+      padding: 7px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+    }
+
+    .portrait {
+      display: block;
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      max-height: 360px;
+      object-fit: cover;
+      background: #e5e1d8;
+    }
+
+    h1,
+    h2,
+    h3 {
+      color: var(--text);
+      font-family: var(--serif);
+      font-weight: 400;
+      line-height: 1.2;
+    }
+
+    h1 {
+      margin: 12px 0;
+      font-size: clamp(36px, 6vw, 60px);
+      letter-spacing: -0.035em;
+    }
+
+    h2 {
+      margin: 0 0 24px;
+      font-size: clamp(29px, 4vw, 40px);
+      letter-spacing: -0.025em;
+    }
+
+    h3 {
+      margin: 28px 0 10px;
+      font-size: 24px;
+    }
+
+    .dates {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .hero-quote {
+      max-width: 580px;
+      margin: 28px auto 0;
+      color: #5e625a;
+      font-family: var(--serif);
+      font-size: 20px;
+      font-style: italic;
+    }
+
+    section {
+      padding: 44px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    section:last-child {
+      border-bottom: 0;
+    }
+
+    .section-number {
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    p {
+      margin: 0 0 18px;
+      color: #50544e;
+    }
+
+    .story p {
+      max-width: 780px;
+    }
+
+    .story p:last-child {
+      margin-bottom: 0;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 26px;
+    }
+
+    .gallery-button {
+      display: block;
+      overflow: hidden;
+      padding: 0;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      cursor: zoom-in;
+    }
+
+    .gallery-button img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      object-fit: cover;
+      transition: transform 0.35s ease;
+    }
+
+    .gallery-button:hover img {
+      transform: scale(1.035);
+    }
+
+    .photo-caption {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .closing-note {
+      padding: 30px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+    }
+
+    .closing-note blockquote {
+      margin: 0;
+      color: #50544e;
+      font-family: var(--serif);
+      font-size: 22px;
+      font-style: italic;
+      line-height: 1.6;
+    }
+
+    footer {
+      padding: 28px 20px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(28, 30, 27, 0.94);
+      cursor: zoom-out;
+    }
+
+    .lightbox.open {
+      display: flex;
+    }
+
+    .lightbox img {
+      max-width: 92vw;
+      max-height: 88vh;
+      object-fit: contain;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 14px;
+      right: 20px;
+      border: 0;
+      background: transparent;
+      color: white;
+      font-size: 34px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 600px) {
+      .site-header {
+        padding: 18px 20px;
+      }
+
+      .header-note {
+        font-size: 9px;
+      }
+
+      main {
+        width: calc(100% - 32px);
+      }
+
+      .hero {
+        padding: 38px 0 32px;
+      }
+
+      section {
+        padding: 32px 0;
+      }
+
+      h1 {
+        font-size: clamp(34px, 10vw, 46px);
+      }
+
+      h2 {
+        font-size: 29px;
+      }
+
+      h3 {
+        font-size: 21px;
+      }
+
+      .gallery {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .hero-quote {
+        font-size: 18px;
+      }
+
+      .closing-note {
+        padding: 20px;
+      }
+
+      .closing-note blockquote {
+        font-size: 19px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <a class="logo" href="index.html">Живая память</a>
+    <span class="header-note">История человека</span>
+  </header>
+
+  <main>
+    <div class="hero">
+      <p class="eyebrow">Память, которая остаётся</p>
+
+      <div class="portrait-frame">
+        <img
+          class="portrait"
+          src="portrait.jpg"
+          alt="Портрет Александра"
+          onerror="this.parentElement.style.display='none';"
+        >
+      </div>
+
+      <h1>Александр</h1>
+      <p class="dates">Годы жизни можно добавить здесь</p>
+      <p class="hero-quote">«Человек живёт, пока о нём помнят»</p>
+    </div>
+
+    <section class="story">
+      <span class="section-number">01 / Детство и семья</span>
+      <h2>История, с которой всё началось</h2>
+
+      <p>Александр рос в большой семье. У него была старшая сестра Виктория и младший брат Иван. Несмотря на разницу в возрасте, детство было живым, наполненным общими играми, радостью и семейным теплом.</p>
+
+      <p>Мама, Светлана, рано заметила его музыкальные способности и поддерживала стремление развиваться. Александр освоил баян и окончил музыкальную школу с отличными отметками, а позже научился играть и на гитаре.</p>
+
+      <p>Вокруг него всегда были друзья, шутки и игры. Он любил подурачиться, а учителя отзывались о нём хорошо.</p>
+    </section>
+
+    <section class="story">
+      <span class="section-number">02 / Юность</span>
+      <h2>Время открытий</h2>
+
+      <p>После десяти классов Александр поступил в строительный техникум, где учился на архитектора. Ему нравилась учёба, он с интересом участвовал в мероприятиях и творческой жизни техникума.</p>
+
+      <p>Он жил в общежитии и постепенно учился самостоятельности. Мама помогала ему осваивать повседневные вещи — заботиться о себе, готовить и уверенно справляться с бытовыми задачами.</p>
+    </section>
+
+    <section class="story">
+      <span class="section-number">03 / Армия</span>
+      <h2>Служить с честью</h2>
+
+      <p>После техникума Александр выбрал срочную службу. Он служил в воздушно-десантных войсках в Уссурийске, на Дальнем Востоке.</p>
+
+      <p>К службе он относился ответственно, заслужил уважение сослуживцев и получил награды за отличную службу. За время подготовки он совершил три учебных прыжка с парашютом. Мама получала благодарственные письма, которыми могла гордиться.</p>
+    </section>
+
+    <section class="story">
+      <span class="section-number">04 / Взрослая жизнь</span>
+      <h2>Найти своё дело</h2>
+
+      <p>Вернувшись из армии, Александр пробовал себя в разных направлениях. Он участвовал в строительстве бассейна на стадионе «Арена».</p>
+
+      <p>Позже он пришёл в продажи — ему нравилось общаться с людьми. Он хорошо проявил себя в работе и стал важной частью команды.</p>
+
+      <p>Со временем Александр переехал в Москву и продолжил работать в сфере продаж. Ему нравилось гулять по городу, открывать новые места и делиться фотографиями с семьёй.</p>
+    </section>
+
+    <section class="story">
+      <span class="section-number">05 / Каким его помнят</span>
+      <h2>Сильный характер и доброе сердце</h2>
+
+      <p>Александр умел поддержать в трудную минуту, был добрым и отзывчивым. В нём сочетались сила воли и настойчивость: если он принимал решение, то старался идти до конца.</p>
+
+      <p>Он остро чувствовал несправедливость, не проходил мимо чужой беды и мог заступиться за тех, кто слабее. Для него было важно отстаивать правду и поступать по совести.</p>
+    </section>
+
+    <section>
+      <span class="section-number">06 / Фотографии</span>
+      <h2>Мгновения, которые остаются</h2>
+      <p>Каждая фотография хранит частичку истории. Нажмите на снимок, чтобы рассмотреть его крупнее.</p>
+
+      <div class="gallery">
+        <button class="gallery-button" type="button" data-image="photo1.jpg" aria-label="Увеличить фотографию 1">
+          <img src="photo1.jpg" alt="Фотография из семейного архива" loading="lazy" onerror="this.closest('button').style.display='none';">
+        </button>
+
+        <button class="gallery-button" type="button" data-image="photo2.jpg" aria-label="Увеличить фотографию 2">
+          <img src="photo2.jpg" alt="Фотография из семейного архива" loading="lazy" onerror="this.closest('button').style.display='none';">
+        </button>
+
+        <button class="gallery-button" type="button" data-image="photo3.jpg" aria-label="Увеличить фотографию 3">
+          <img src="photo3.jpg" alt="Фотография из семейного архива" loading="lazy" onerror="this.closest('button').style.display='none';">
+        </button>
+      </div>
+
+      <p class="photo-caption">Здесь можно добавить подписи к фотографиям.</p>
+    </section>
+
+    <section>
+      <span class="section-number">07 / Светлая память</span>
+      <h2>Он остаётся с нами</h2>
+
+      <div class="closing-note">
+        <blockquote>Есть люди, чьё присутствие продолжается в наших воспоминаниях, в историях, которые мы рассказываем, и в любви, которую бережно храним.</blockquote>
+      </div>
+    </section>
+  </main>
+
+  <footer>Живая память · Истории, которые остаются с нами</footer>
+
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Увеличенная фотография">
+    <button class="lightbox-close" type="button" aria-label="Закрыть фотографию">&times;</button>
+    <img src="" alt="Увеличенная фотография">
+  </div>
+
+  <script>
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImage = lightbox.querySelector('img');
+
+    document.querySelectorAll('.gallery-button').forEach((button) => {
+      button.addEventListener('click', () => {
+        lightboxImage.src = button.dataset.image;
+        lightboxImage.alt = button.querySelector('img').alt;
+        lightbox.classList.add('open');
+      });
+    });
+
+    function closeLightbox() {
+      lightbox.classList.remove('open');
+      lightboxImage.src = '';
+    }
+
+    lightbox.addEventListener('click', (event) => {
+      if (event.target === lightbox || event.target.closest('.lightbox-close')) {
+        closeLightbox();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        closeLightbox();
+      }
+    });
+  </script>
+</body>
+</html>

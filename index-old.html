@@ -1,0 +1,601 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f2f0ea">
+  <meta name="description" content="Живая память — место, где истории близких людей, фотографии, голоса и воспоминания остаются для будущих поколений.">
+  <title>Живая память — истории, которые остаются</title>
+
+  <style>
+    :root {
+      --background: #f2f0ea;
+      --paper: #faf9f6;
+      --text: #303630;
+      --muted: #77766f;
+      --accent: #747b69;
+      --line: #d9d5cb;
+      --serif: Georgia, "Times New Roman", serif;
+      --sans: Arial, Helvetica, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.8;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    a:hover {
+      opacity: 0.78;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 22px max(6%, calc((100% - 1120px) / 2));
+      border-bottom: 1px solid var(--line);
+    }
+
+    .logo {
+      font-size: 19px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .header-note {
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    .container {
+      width: min(100% - 48px, 1080px);
+      margin: 0 auto;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      align-items: center;
+      gap: 70px;
+      padding: 92px 0 100px;
+    }
+
+    .eyebrow {
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3 {
+      color: var(--text);
+      font-family: var(--serif);
+      font-weight: 400;
+      line-height: 1.17;
+    }
+
+    h1 {
+      max-width: 620px;
+      margin: 0 0 26px;
+      font-size: clamp(42px, 6vw, 72px);
+      letter-spacing: -0.045em;
+    }
+
+    h2 {
+      margin: 0 0 24px;
+      font-size: clamp(32px, 4.5vw, 48px);
+      letter-spacing: -0.03em;
+    }
+
+    h3 {
+      margin: 0 0 12px;
+      font-size: 25px;
+    }
+
+    p {
+      margin: 0 0 18px;
+      color: #50544e;
+    }
+
+    .hero-text {
+      max-width: 560px;
+      font-size: 17px;
+      line-height: 1.9;
+    }
+
+    .hero-image {
+      position: relative;
+      min-height: 390px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+    }
+
+    .hero-image img {
+      display: block;
+      width: 100%;
+      height: 390px;
+      object-fit: cover;
+      background: #e4e0d7;
+    }
+
+    .image-caption {
+      margin: 12px 4px 2px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 52px;
+      margin-top: 14px;
+      padding: 13px 24px;
+      border: 1px solid var(--text);
+      background: var(--text);
+      color: #faf9f6;
+      font-size: 14px;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .button:hover {
+      background: transparent;
+      color: var(--text);
+      opacity: 1;
+    }
+
+    .button-secondary {
+      border-color: var(--line);
+      background: transparent;
+      color: var(--text);
+    }
+
+    .button-secondary:hover {
+      border-color: var(--text);
+      background: var(--text);
+      color: var(--paper);
+    }
+
+    section {
+      padding: 78px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .section-heading {
+      max-width: 700px;
+      margin-bottom: 42px;
+    }
+
+    .section-number {
+      display: block;
+      margin-bottom: 14px;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .intro-grid {
+      display: grid;
+      grid-template-columns: 0.8fr 1.2fr;
+      gap: 70px;
+      align-items: start;
+    }
+
+    .intro-lead {
+      font-family: var(--serif);
+      font-size: 29px;
+      line-height: 1.5;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .feature {
+      min-height: 220px;
+      padding: 28px 24px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+    }
+
+    .feature-number {
+      display: block;
+      margin-bottom: 28px;
+      color: var(--muted);
+      font-family: var(--serif);
+      font-size: 25px;
+    }
+
+    .feature p {
+      margin-bottom: 0;
+      font-size: 14px;
+    }
+
+    .how-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 30px;
+    }
+
+    .how-item {
+      padding-top: 20px;
+      border-top: 1px solid var(--accent);
+    }
+
+    .how-item .step {
+      display: block;
+      margin-bottom: 16px;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+    }
+
+    .example {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 54px;
+      align-items: center;
+      padding: 36px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+    }
+
+    .example-image {
+      width: 100%;
+      max-height: 390px;
+      object-fit: cover;
+      background: #e4e0d7;
+    }
+
+    .example .eyebrow {
+      margin-top: 0;
+    }
+
+    .closing {
+      padding: 85px 0;
+      text-align: center;
+    }
+
+    .closing h2 {
+      max-width: 750px;
+      margin: 0 auto 22px;
+    }
+
+    .closing p {
+      max-width: 600px;
+      margin: 0 auto 18px;
+    }
+
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 26px 6%;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .footer a {
+      color: var(--text);
+    }
+
+    @media (max-width: 760px) {
+      .header {
+        padding: 18px 20px;
+      }
+
+      .header-note {
+        max-width: 120px;
+        font-size: 9px;
+        text-align: right;
+      }
+
+      .container {
+        width: calc(100% - 36px);
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+        gap: 36px;
+        padding: 52px 0 58px;
+      }
+
+      h1 {
+        font-size: clamp(42px, 11vw, 58px);
+      }
+
+      .hero-text {
+        font-size: 16px;
+      }
+
+      .hero-image {
+        min-height: auto;
+      }
+
+      .hero-image img {
+        height: 300px;
+      }
+
+      section {
+        padding: 54px 0;
+      }
+
+      .intro-grid,
+      .example {
+        grid-template-columns: 1fr;
+        gap: 26px;
+      }
+
+      .intro-lead {
+        font-size: 25px;
+      }
+
+      .features,
+      .how-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      .feature {
+        min-height: auto;
+        padding: 24px;
+      }
+
+      .feature-number {
+        margin-bottom: 14px;
+      }
+
+      .example {
+        padding: 20px;
+      }
+
+      .example-image {
+        max-height: 300px;
+      }
+
+      .closing {
+        padding: 60px 0;
+      }
+
+      .footer {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 24px 20px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <a class="logo" href="index.html">Живая память</a>
+    <span class="header-note">Истории, которые остаются</span>
+  </header>
+
+  <main>
+    <div class="container">
+      <section class="hero" style="border-top: 0;">
+        <div>
+          <p class="eyebrow">Память сквозь поколения</p>
+          <h1>Некоторые истории должны жить вечно</h1>
+
+          <p class="hero-text">
+            У каждого человека есть своя история. Голос, улыбка, любимые фотографии,
+            важные моменты и воспоминания близких. «Живая память» помогает сохранить
+            всё это в одном месте — чтобы история человека продолжалась и передавалась
+            следующим поколениям.
+          </p>
+
+          <a class="button" href="memory.html">Посмотреть пример страницы</a>
+        </div>
+
+        <div class="hero-image">
+          <img
+            src="portrait.jpg"
+            alt="Фотография для примера мемориальной страницы"
+            onerror="this.parentElement.style.display='none';"
+          >
+          <p class="image-caption">Личная история. Семейная память. Часть нашей жизни.</p>
+        </div>
+      </section>
+    </div>
+
+    <section>
+      <div class="container intro-grid">
+        <div>
+          <span class="section-number">01 / Идея проекта</span>
+          <h2>Память — это больше, чем имя и даты</h2>
+        </div>
+
+        <div>
+          <p class="intro-lead">
+            Это целая жизнь, которую хочется помнить.
+          </p>
+
+          <p>
+            Иногда за именем на памятнике скрывается целый мир: детство, мечты,
+            любимая музыка, семейные истории, путешествия, привычки и поступки,
+            которые навсегда остаются в сердцах близких.
+          </p>
+
+          <p>
+            Мы создаём пространство, где эти истории можно бережно хранить:
+            в текстах, фотографиях, видео и голосовых воспоминаниях.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="section-heading">
+          <span class="section-number">02 / Что можно сохранить</span>
+          <h2>История человека — во всех её проявлениях</h2>
+          <p>
+            Мемориальная страница может стать семейным архивом, к которому
+            можно вернуться в любой момент.
+          </p>
+        </div>
+
+        <div class="features">
+          <article class="feature">
+            <span class="feature-number">01</span>
+            <h3>Фотографии</h3>
+            <p>
+              Детство, семья, друзья, важные события и обычные моменты,
+              которые со временем становятся особенно дорогими.
+            </p>
+          </article>
+
+          <article class="feature">
+            <span class="feature-number">02</span>
+            <h3>История жизни</h3>
+            <p>
+              Биография, достижения, увлечения и воспоминания,
+              которые помогают узнать человека ближе.
+            </p>
+          </article>
+
+          <article class="feature">
+            <span class="feature-number">03</span>
+            <h3>Голос и видео</h3>
+            <p>
+              Записи голоса, видеопоздравления и семейные ролики,
+              которые помогают сохранить живые моменты.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="section-heading">
+          <span class="section-number">03 / Как это работает</span>
+          <h2>Просто открыть. Вспомнить. Поделиться.</h2>
+        </div>
+
+        <div class="how-grid">
+          <article class="how-item">
+            <span class="step">ШАГ 01</span>
+            <h3>Создаётся страница</h3>
+            <p>
+              В одном месте собираются биография, фотографии и другие
+              материалы о человеке.
+            </p>
+          </article>
+
+          <article class="how-item">
+            <span class="step">ШАГ 02</span>
+            <h3>Добавляется QR-код</h3>
+            <p>
+              QR-код может вести на персональную страницу памяти,
+              когда сайт и ссылка настроены.
+            </p>
+          </article>
+
+          <article class="how-item">
+            <span class="step">ШАГ 03</span>
+            <h3>История остаётся доступной</h3>
+            <p>
+              Родные и близкие смогут открыть страницу на телефоне
+              и познакомиться с историей человека.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="example">
+          <img
+            class="example-image"
+            src="portrait.jpg"
+            alt="Пример фотографии для страницы памяти"
+            onerror="this.style.display='none';"
+          >
+
+          <div>
+            <p class="eyebrow">Пример мемориальной страницы</p>
+            <h2>За каждым именем — целая жизнь</h2>
+
+            <p>
+              Посмотрите, как может выглядеть история одного человека:
+              от семейных воспоминаний и важных событий до фотографий,
+              которые хочется сохранить.
+            </p>
+
+            <a class="button button-secondary" href="memory.html">
+              Открыть пример
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="closing">
+      <div class="container">
+        <p class="eyebrow">Живая память</p>
+        <h2>Чтобы близкие оставались частью нашей истории</h2>
+
+        <p>
+          Мы не можем остановить время, но можем сохранить то,
+          что делает человека незабываемым.
+        </p>
+
+        <a class="button" href="memory.html">Перейти к истории</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>Живая память · Истории, которые остаются с нами</span>
+    <a href="memory.html">Пример мемориальной страницы</a>
+  </footer>
+</body>
+</html>

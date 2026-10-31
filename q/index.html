@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Живая память</title>
+</head>
+<body>
+  <h1>Живая память</h1>
+  <p id="message">Загружаем страницу памяти...</p>
+
+  <script>
+    const code = window.location.pathname.split("/").filter(Boolean).pop();
+
+    const pages = {
+      "001": "../memory.html"
+    };
+
+    const page = pages[code];
+
+    if (page) {
+      window.location.replace(page);
+    } else {
+      document.getElementById("message").textContent =
+        "Этот QR-код пока не привязан к странице памяти.";
+    }
+  </script>
+</body>
+</html>
