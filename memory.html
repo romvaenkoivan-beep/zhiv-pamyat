@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#f2f0ea">
   <meta name="description" content="Живая память — история человека, фотографии и воспоминания, которые остаются с нами.">
-  <title>Живая память — Александр</title>
+  <title>Живая память</title>
 
   <style>
     :root {
@@ -124,11 +124,6 @@
       letter-spacing: -0.025em;
     }
 
-    h3 {
-      margin: 28px 0 10px;
-      font-size: 24px;
-    }
-
     .dates {
       margin: 0;
       color: var(--muted);
@@ -161,10 +156,6 @@
     p {
       margin: 0 0 18px;
       color: #50544e;
-    }
-
-    .story p {
-      max-width: 780px;
     }
 
     .story p:last-child {
@@ -218,6 +209,44 @@
       font-size: 22px;
       font-style: italic;
       line-height: 1.6;
+    }
+
+    .media-list {
+      display: grid;
+      gap: 18px;
+      margin-top: 24px;
+    }
+
+    .media-item {
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+    }
+
+    .media-item p {
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .media-item video,
+    .media-item audio {
+      display: block;
+      width: 100%;
+    }
+
+    .status {
+      padding: 100px 20px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .status h2 {
+      font-size: 30px;
+    }
+
+    .status p {
+      max-width: 520px;
+      margin: 0 auto;
     }
 
     footer {
@@ -290,10 +319,6 @@
         font-size: 29px;
       }
 
-      h3 {
-        font-size: 21px;
-      }
-
       .gallery {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px;
@@ -332,104 +357,59 @@
     <span class="header-note">История человека</span>
   </header>
 
-  <main>
+  <main id="page-content" style="display: none;">
     <div class="hero">
       <p class="eyebrow">Память, которая остаётся</p>
 
-      <div class="portrait-frame">
-        <img
-          class="portrait"
-          src="portrait.jpg"
-          alt="Портрет Александра"
-          onerror="this.parentElement.style.display='none';"
-        >
+      <div class="portrait-frame" id="portrait-frame">
+        <img class="portrait" id="portrait" src="" alt="Портрет">
       </div>
 
-      <h1>Александр</h1>
-      <p class="dates">Годы жизни можно добавить здесь</p>
+      <h1 id="person-name"></h1>
+      <p class="dates" id="person-dates"></p>
       <p class="hero-quote">«Человек живёт, пока о нём помнят»</p>
     </div>
 
-    <section class="story">
-      <span class="section-number">01 / Детство и семья</span>
-      <h2>История, с которой всё началось</h2>
-
-      <p>Александр рос в большой семье. У него была старшая сестра Виктория и младший брат Иван. Несмотря на разницу в возрасте, детство было живым, наполненным общими играми, радостью и семейным теплом.</p>
-
-      <p>Мама, Светлана, рано заметила его музыкальные способности и поддерживала стремление развиваться. Александр освоил баян и окончил музыкальную школу с отличными отметками, а позже научился играть и на гитаре.</p>
-
-      <p>Вокруг него всегда были друзья, шутки и игры. Он любил подурачиться, а учителя отзывались о нём хорошо.</p>
+    <section class="story" id="biography-section">
+      <span class="section-number">01 / История человека</span>
+      <h2>Жизненный путь</h2>
+      <div id="biography"></div>
     </section>
 
-    <section class="story">
-      <span class="section-number">02 / Юность</span>
-      <h2>Время открытий</h2>
-
-      <p>После десяти классов Александр поступил в строительный техникум, где учился на архитектора. Ему нравилась учёба, он с интересом участвовал в мероприятиях и творческой жизни техникума.</p>
-
-      <p>Он жил в общежитии и постепенно учился самостоятельности. Мама помогала ему осваивать повседневные вещи — заботиться о себе, готовить и уверенно справляться с бытовыми задачами.</p>
-    </section>
-
-    <section class="story">
-      <span class="section-number">03 / Армия</span>
-      <h2>Служить с честью</h2>
-
-      <p>После техникума Александр выбрал срочную службу. Он служил в воздушно-десантных войсках в Уссурийске, на Дальнем Востоке.</p>
-
-      <p>К службе он относился ответственно, заслужил уважение сослуживцев и получил награды за отличную службу. За время подготовки он совершил три учебных прыжка с парашютом. Мама получала благодарственные письма, которыми могла гордиться.</p>
-    </section>
-
-    <section class="story">
-      <span class="section-number">04 / Взрослая жизнь</span>
-      <h2>Найти своё дело</h2>
-
-      <p>Вернувшись из армии, Александр пробовал себя в разных направлениях. Он участвовал в строительстве бассейна на стадионе «Арена».</p>
-
-      <p>Позже он пришёл в продажи — ему нравилось общаться с людьми. Он хорошо проявил себя в работе и стал важной частью команды.</p>
-
-      <p>Со временем Александр переехал в Москву и продолжил работать в сфере продаж. Ему нравилось гулять по городу, открывать новые места и делиться фотографиями с семьёй.</p>
-    </section>
-
-    <section class="story">
-      <span class="section-number">05 / Каким его помнят</span>
-      <h2>Сильный характер и доброе сердце</h2>
-
-      <p>Александр умел поддержать в трудную минуту, был добрым и отзывчивым. В нём сочетались сила воли и настойчивость: если он принимал решение, то старался идти до конца.</p>
-
-      <p>Он остро чувствовал несправедливость, не проходил мимо чужой беды и мог заступиться за тех, кто слабее. Для него было важно отстаивать правду и поступать по совести.</p>
-    </section>
-
-    <section>
-      <span class="section-number">06 / Фотографии</span>
+    <section id="gallery-section" style="display: none;">
+      <span class="section-number">02 / Фотографии</span>
       <h2>Мгновения, которые остаются</h2>
       <p>Каждая фотография хранит частичку истории. Нажмите на снимок, чтобы рассмотреть его крупнее.</p>
+      <div class="gallery" id="gallery"></div>
+    </section>
 
-      <div class="gallery">
-        <button class="gallery-button" type="button" data-image="photo1.jpg" aria-label="Увеличить фотографию 1">
-          <img src="photo1.jpg" alt="Фотография из семейного архива" loading="lazy" onerror="this.closest('button').style.display='none';">
-        </button>
+    <section id="video-section" style="display: none;">
+      <span class="section-number">03 / Видео</span>
+      <h2>Живые воспоминания</h2>
+      <div class="media-list" id="videos"></div>
+    </section>
 
-        <button class="gallery-button" type="button" data-image="photo2.jpg" aria-label="Увеличить фотографию 2">
-          <img src="photo2.jpg" alt="Фотография из семейного архива" loading="lazy" onerror="this.closest('button').style.display='none';">
-        </button>
-
-        <button class="gallery-button" type="button" data-image="photo3.jpg" aria-label="Увеличить фотографию 3">
-          <img src="photo3.jpg" alt="Фотография из семейного архива" loading="lazy" onerror="this.closest('button').style.display='none';">
-        </button>
+    <section id="audio-section" style="display: none;">
+      <span class="section-number">04 / Голос</span>
+      <h2>Голос, который остаётся</h2>
+      <div class="media-item">
+        <audio id="audio-player" controls></audio>
       </div>
-
-      <p class="photo-caption">Здесь можно добавить подписи к фотографиям.</p>
     </section>
 
     <section>
-      <span class="section-number">07 / Светлая память</span>
+      <span class="section-number">Светлая память</span>
       <h2>Он остаётся с нами</h2>
-
       <div class="closing-note">
         <blockquote>Есть люди, чьё присутствие продолжается в наших воспоминаниях, в историях, которые мы рассказываем, и в любви, которую бережно храним.</blockquote>
       </div>
     </section>
   </main>
+
+  <div class="status" id="status">
+    <h2>Загружаем историю</h2>
+    <p>Пожалуйста, подождите немного.</p>
+  </div>
 
   <footer>Живая память · Истории, которые остаются с нами</footer>
 
@@ -438,34 +418,280 @@
     <img src="" alt="Увеличенная фотография">
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+
   <script>
-    const lightbox = document.getElementById('lightbox');
-    const lightboxImage = lightbox.querySelector('img');
+    const statusBlock = document.getElementById("status");
+    const pageContent = document.getElementById("page-content");
 
-    document.querySelectorAll('.gallery-button').forEach((button) => {
-      button.addEventListener('click', () => {
-        lightboxImage.src = button.dataset.image;
-        lightboxImage.alt = button.querySelector('img').alt;
-        lightbox.classList.add('open');
-      });
-    });
+    function showError(message) {
+      statusBlock.innerHTML = "";
 
-    function closeLightbox() {
-      lightbox.classList.remove('open');
-      lightboxImage.src = '';
+      const heading = document.createElement("h2");
+      heading.textContent = "Страница памяти пока недоступна";
+
+      const paragraph = document.createElement("p");
+      paragraph.textContent = message;
+
+      statusBlock.append(heading, paragraph);
+      statusBlock.style.display = "block";
+      pageContent.style.display = "none";
     }
 
-    lightbox.addEventListener('click', (event) => {
-      if (event.target === lightbox || event.target.closest('.lightbox-close')) {
+    function getQrCode() {
+      const params = new URLSearchParams(window.location.search);
+      const queryCode = params.get("qr");
+
+      if (queryCode) {
+        return queryCode.trim();
+      }
+
+      const match = window.location.pathname.match(/\/q\/([^/]+)/i);
+
+      if (match && match[1]) {
+        return decodeURIComponent(match[1]).trim();
+      }
+
+      return null;
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return "";
+
+      const parts = dateString.split("-");
+
+      if (parts.length !== 3) return dateString;
+
+      return `${parts[2]}.${parts[1]}.${parts[0]}`;
+    }
+
+    function renderBiography(biography) {
+      const container = document.getElementById("biography");
+      container.innerHTML = "";
+
+      if (!biography || !biography.trim()) {
+        document.getElementById("biography-section").style.display = "none";
+        return;
+      }
+
+      const paragraphs = biography
+        .split(/\n+/)
+        .map(text => text.trim())
+        .filter(Boolean);
+
+      paragraphs.forEach(text => {
+        const paragraph = document.createElement("p");
+        paragraph.textContent = text;
+        container.appendChild(paragraph);
+      });
+    }
+
+    function renderGallery(photos) {
+      const section = document.getElementById("gallery-section");
+      const gallery = document.getElementById("gallery");
+
+      gallery.innerHTML = "";
+
+      if (!Array.isArray(photos) || photos.length === 0) {
+        section.style.display = "none";
+        return;
+      }
+
+      const validPhotos = photos.filter(photo => photo && photo.url);
+
+      if (validPhotos.length === 0) {
+        section.style.display = "none";
+        return;
+      }
+
+      validPhotos.forEach((photo, index) => {
+        const button = document.createElement("button");
+        button.className = "gallery-button";
+        button.type = "button";
+        button.setAttribute("aria-label", `Увеличить фотографию ${index + 1}`);
+
+        const image = document.createElement("img");
+        image.src = photo.url;
+        image.alt = photo.name || "Фотография из семейного архива";
+        image.loading = "lazy";
+
+        image.addEventListener("error", () => {
+          button.remove();
+          if (!gallery.children.length) {
+            section.style.display = "none";
+          }
+        });
+
+        button.appendChild(image);
+
+        button.addEventListener("click", () => {
+          const lightbox = document.getElementById("lightbox");
+          const lightboxImage = lightbox.querySelector("img");
+
+          lightboxImage.src = photo.url;
+          lightboxImage.alt = image.alt;
+          lightbox.classList.add("open");
+        });
+
+        gallery.appendChild(button);
+      });
+
+      section.style.display = "block";
+    }
+
+    function renderVideos(videos) {
+      const section = document.getElementById("video-section");
+      const container = document.getElementById("videos");
+
+      container.innerHTML = "";
+
+      if (!Array.isArray(videos) || videos.length === 0) {
+        section.style.display = "none";
+        return;
+      }
+
+      const validVideos = videos.filter(video => video && video.url);
+
+      if (validVideos.length === 0) {
+        section.style.display = "none";
+        return;
+      }
+
+      validVideos.forEach(video => {
+        const item = document.createElement("div");
+        item.className = "media-item";
+
+        if (video.name) {
+          const caption = document.createElement("p");
+          caption.textContent = video.name;
+          item.appendChild(caption);
+        }
+
+        const player = document.createElement("video");
+        player.src = video.url;
+        player.controls = true;
+        player.preload = "metadata";
+
+        item.appendChild(player);
+        container.appendChild(item);
+      });
+
+      section.style.display = "block";
+    }
+
+    function renderPage(page) {
+      document.title = `Живая память — ${page.full_name || "История человека"}`;
+
+      document.getElementById("person-name").textContent =
+        page.full_name || "История человека";
+
+      const birthDate = formatDate(page.birth_date);
+      const deathDate = formatDate(page.death_date);
+      const dates = [birthDate, deathDate].filter(Boolean).join(" — ");
+
+      const datesElement = document.getElementById("person-dates");
+      datesElement.textContent = dates;
+      datesElement.style.display = dates ? "block" : "none";
+
+      const portraitFrame = document.getElementById("portrait-frame");
+      const portrait = document.getElementById("portrait");
+
+      if (page.portrait_url) {
+        portrait.src = page.portrait_url;
+        portrait.alt = `Портрет: ${page.full_name || "человека"}`;
+
+        portrait.onerror = () => {
+          portraitFrame.style.display = "none";
+        };
+      } else {
+        portraitFrame.style.display = "none";
+      }
+
+      renderBiography(page.biography || "");
+      renderGallery(page.photos || []);
+      renderVideos(page.videos || []);
+
+      const audioSection = document.getElementById("audio-section");
+      const audioPlayer = document.getElementById("audio-player");
+
+      if (page.audio_url) {
+        audioPlayer.src = page.audio_url;
+        audioSection.style.display = "block";
+      } else {
+        audioSection.style.display = "none";
+      }
+
+      statusBlock.style.display = "none";
+      pageContent.style.display = "block";
+    }
+
+    async function loadMemorial() {
+      const qrCode = getQrCode();
+
+      if (!qrCode) {
+        showError("В адресе страницы не указан номер QR-кода.");
+        return;
+      }
+
+      if (typeof supabaseClient === "undefined") {
+        showError("Не удалось подключиться к сервису. Проверьте файл конфигурации.");
+        return;
+      }
+
+      try {
+        const { data, error } = await supabaseClient.functions.invoke(
+          "get-public-memorial",
+          {
+            body: {
+              qr_code: qrCode
+            }
+          }
+        );
+
+        if (error) {
+          console.error("Ошибка загрузки:", error);
+          showError("Не удалось загрузить данные. Попробуйте открыть страницу немного позже.");
+          return;
+        }
+
+        if (!data || !data.page) {
+          showError(data?.error || "Страница памяти не найдена или ещё не опубликована.");
+          return;
+        }
+
+        renderPage(data.page);
+
+      } catch (error) {
+        console.error("Ошибка:", error);
+        showError("Произошла ошибка при загрузке страницы памяти.");
+      }
+    }
+
+    const lightbox = document.getElementById("lightbox");
+    const lightboxImage = lightbox.querySelector("img");
+
+    function closeLightbox() {
+      lightbox.classList.remove("open");
+      lightboxImage.src = "";
+    }
+
+    lightbox.addEventListener("click", event => {
+      if (
+        event.target === lightbox ||
+        event.target.closest(".lightbox-close")
+      ) {
         closeLightbox();
       }
     });
 
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') {
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") {
         closeLightbox();
       }
     });
+
+    loadMemorial();
   </script>
 </body>
 </html>

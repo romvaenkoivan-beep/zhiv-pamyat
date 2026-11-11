@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f3eb">
+  <title>Панель управления — Живая память</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #f7f3eb;
+      color: #302f2a;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      padding: 25px 40px;
+      background: #354b3e;
+      color: white;
+    }
+
+    header h1 { margin: 0 0 8px; font-size: 28px; }
+    header p { margin: 0; color: #e5ebe5; }
+
+    main {
+      max-width: 1180px;
+      margin: 32px auto;
+      padding: 0 20px 40px;
+    }
+
+    .panel {
+      background: #fffdf8;
+      padding: 26px;
+      margin-bottom: 22px;
+      border-radius: 16px;
+      box-shadow: 0 5px 20px rgba(53, 75, 62, 0.05);
+    }
+
+    h2 { margin: 0 0 18px; color: #354b3e; font-size: 22px; }
+    label { display: block; margin: 16px 0 7px; font-weight: bold; }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d9d5ca;
+      border-radius: 8px;
+      font: inherit;
+      background: white;
+      color: #302f2a;
+    }
+
+    input:focus, textarea:focus {
+      outline: 2px solid rgba(53, 75, 62, .18);
+      border-color: #718575;
+    }
+
+    textarea { min-height: 130px; resize: vertical; }
+    input[type="checkbox"] { width: auto; }
+    input[type="file"] { padding: 10px; }
+
+    button {
+      padding: 11px 18px;
+      border: none;
+      border-radius: 8px;
+      background: #354b3e;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background .2s, transform .2s;
+    }
+
+    button:hover { background: #293c31; }
+    button:active { transform: translateY(1px); }
+    button:disabled { opacity: .6; cursor: wait; }
+
+    .secondary { background: #77766e; }
+    .secondary:hover { background: #626159; }
+    .delete-button { background: #9b4942; }
+    .delete-button:hover { background: #803a34; }
+    .small-button { padding: 7px 11px; font-size: 13px; }
+    .edit-button { padding: 8px 13px; }
+    .outline-button {
+      background: transparent;
+      color: #354b3e;
+      border: 1px solid #bfc8bd;
+    }
+    .outline-button:hover { background: #edf0e9; color: #293c31; }
+
+    .status, .hint { color: #77766e; }
+    .status { line-height: 1.5; }
+    .hint { font-size: 13px; }
+
+    .top-panel {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .top-panel h2 { margin-bottom: 8px; }
+    .top-panel p { margin: 0 0 14px; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .stat-card {
+      background: #fffdf8;
+      border: 1px solid #e9e3d8;
+      border-radius: 14px;
+      padding: 19px 21px;
+    }
+
+    .stat-label { color: #77766e; font-size: 14px; margin-bottom: 9px; }
+    .stat-number { color: #354b3e; font-size: 30px; font-weight: 700; }
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .section-heading h2 { margin: 0; }
+
+    .search-wrap { margin-bottom: 18px; }
+    .search-wrap input { max-width: 440px; }
+
+    .pages-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 15px;
+    }
+
+    .page-card {
+      border: 1px solid #e7e1d6;
+      border-radius: 13px;
+      padding: 19px;
+      background: #fffefa;
+      min-width: 0;
+    }
+
+    .page-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .page-card h3 {
+      margin: 0;
+      color: #354b3e;
+      font-size: 18px;
+      overflow-wrap: anywhere;
+    }
+
+    .page-meta {
+      color: #77766e;
+      font-size: 13px;
+      line-height: 1.65;
+      margin: 8px 0 14px;
+      overflow-wrap: anywhere;
+    }
+
+    .status-pill {
+      flex: 0 0 auto;
+      border-radius: 30px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #edf0e9;
+      color: #354b3e;
+    }
+
+    .status-pill.draft { background: #f3eee2; color: #806b3e; }
+
+    .card-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .empty-state {
+      padding: 25px;
+      text-align: center;
+      color: #77766e;
+      border: 1px dashed #d9d5ca;
+      border-radius: 12px;
+      background: #faf8f2;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 18px 0;
+    }
+    .checkbox-row label { margin: 0; }
+
+    .preview { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+    .preview img {
+      width: 105px;
+      height: 105px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .file-names {
+      margin-top: 8px;
+      font-size: 14px;
+      color: #77766e;
+      white-space: pre-line;
+    }
+
+    .section-note { margin: 5px 0 10px; font-size: 13px; color: #77766e; }
+
+    .existing-media {
+      margin-top: 10px;
+      padding: 12px;
+      border: 1px solid #e5dfd3;
+      border-radius: 8px;
+      background: #faf8f2;
+    }
+    .existing-media:empty { display: none; }
+
+    .existing-file {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #e5dfd3;
+      font-size: 14px;
+    }
+    .existing-file:last-child { border-bottom: 0; }
+
+    .existing-file-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      flex-wrap: wrap;
+    }
+
+    .existing-file-info span { overflow-wrap: anywhere; }
+    .existing-preview {
+      display: block;
+      width: 104px;
+      height: 82px;
+      flex: 0 0 auto;
+      object-fit: cover;
+      border-radius: 7px;
+      background: #e9e5dc;
+    }
+
+    .existing-media-player { display: block; width: min(260px, 100%); margin-top: 7px; }
+    .removed-label { color: #9b4942; font-size: 13px; margin-left: 8px; }
+
+    .form-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+
+    .qr-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(24, 30, 25, .62);
+    }
+    .qr-modal.open { display: flex; }
+    .qr-dialog {
+      width: min(420px, 100%);
+      padding: 25px;
+      border-radius: 16px;
+      background: #fffdf8;
+      text-align: center;
+      box-shadow: 0 15px 50px rgba(0,0,0,.2);
+    }
+    .qr-dialog h2 { margin-bottom: 8px; }
+    .qr-dialog p { color: #77766e; font-size: 14px; line-height: 1.5; }
+    #qrCodeBox {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 250px;
+      margin: 18px auto;
+      padding: 12px;
+      background: white;
+      border: 1px solid #e9e3d8;
+      border-radius: 10px;
+    }
+    #qrCodeBox img, #qrCodeBox canvas { max-width: 100%; height: auto; }
+    .qr-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+
+    [hidden] { display: none !important; }
+
+    @media (max-width: 760px) {
+      header { padding: 22px; }
+      main { margin-top: 20px; padding: 0 13px 30px; }
+      .panel { padding: 19px; }
+      .stats-grid { grid-template-columns: 1fr; gap: 9px; }
+      .stat-card { padding: 15px 17px; }
+      .stat-number { font-size: 26px; }
+      .pages-grid { grid-template-columns: 1fr; }
+      .existing-file { align-items: flex-start; }
+      .top-panel { align-items: flex-start; }
+      .top-panel button { width: 100%; }
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>Живая память</h1>
+  <p>Панель управления</p>
+</header>
+
+<main>
+  <section class="panel top-panel">
+    <div>
+      <h2>Добро пожаловать!</h2>
+      <p id="status" class="status">Проверяем доступ...</p>
+      <button id="logoutButton" class="secondary">Выйти</button>
+    </div>
+    <button id="showCreateButton" type="button">＋ Создать страницу памяти</button>
+  </section>
+
+  <section class="stats-grid" aria-label="Статистика">
+    <div class="stat-card">
+      <div class="stat-label">Всего страниц</div>
+      <div class="stat-number" id="totalCount">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Опубликовано</div>
+      <div class="stat-number" id="publishedCount">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Черновики</div>
+      <div class="stat-number" id="draftCount">—</div>
+    </div>
+  </section>
+
+  <section class="panel" id="createPanel" hidden>
+    <h2 id="formTitle">Создать страницу памяти</h2>
+
+    <form id="pageForm">
+      <label for="full_name">ФИО человека *</label>
+      <input type="text" id="full_name" required placeholder="Например, Александр Иванов">
+
+      <label for="qr_code">Номер QR-кода *</label>
+      <input type="text" id="qr_code" required placeholder="Например, 002">
+
+      <label for="birth_date">Дата рождения</label>
+      <input type="date" id="birth_date">
+
+      <label for="death_date">Дата ухода из жизни</label>
+      <input type="date" id="death_date">
+
+      <label for="biography">Биография</label>
+      <textarea id="biography" placeholder="История жизни человека..."></textarea>
+
+      <label for="portrait_file">Главная фотография</label>
+      <input type="file" id="portrait_file" accept="image/jpeg,image/png,image/webp">
+      <div id="portraitPreview" class="preview"></div>
+
+      <label for="photos_files">Фотографии для галереи</label>
+      <input type="file" id="photos_files" accept="image/jpeg,image/png,image/webp" multiple>
+      <div class="section-note">Можно выбрать несколько фотографий.</div>
+      <div id="photosPreview" class="preview"></div>
+
+      <label for="videos_files">Видеозаписи</label>
+      <input type="file" id="videos_files" accept="video/mp4" multiple>
+      <div class="section-note">Формат MP4. Максимум 50 МБ на файл.</div>
+      <div id="videosNames" class="file-names"></div>
+
+      <label for="audio_file">Аудиозапись</label>
+      <input type="file" id="audio_file" accept="audio/mpeg,audio/mp4,audio/wav,audio/ogg">
+      <div class="section-note">Можно загрузить одну аудиозапись.</div>
+      <div id="audioName" class="file-names"></div>
+
+      <div id="existingMedia" class="existing-media"></div>
+
+      <div class="checkbox-row">
+        <input type="checkbox" id="is_published">
+        <label for="is_published">Опубликовать страницу сразу</label>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" id="saveButton">Сохранить страницу</button>
+        <button type="button" id="cancelEditButton" class="secondary" hidden>Отменить редактирование</button>
+      </div>
+      <p id="formMessage" class="status"></p>
+    </form>
+  </section>
+
+  <section class="panel">
+    <div class="section-heading">
+      <h2>Страницы памяти</h2>
+      <span id="pagesCount" class="hint"></span>
+    </div>
+    <div class="search-wrap">
+      <input type="search" id="searchInput" placeholder="Поиск по ФИО или номеру QR-кода">
+    </div>
+    <div id="pagesList">Загрузка страниц...</div>
+  </section>
+</main>
+
+<div class="qr-modal" id="qrModal" role="dialog" aria-modal="true" aria-labelledby="qrTitle">
+  <div class="qr-dialog">
+    <h2 id="qrTitle">QR-код страницы</h2>
+    <p id="qrDescription"></p>
+    <div id="qrCodeBox"></div>
+    <div class="qr-actions">
+      <button type="button" id="downloadQrButton">Скачать PNG</button>
+      <button type="button" id="closeQrButton" class="secondary">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="supabase-config.js"></script>
+
+<script>
+  const statusElement = document.getElementById("status");
+  const pagesList = document.getElementById("pagesList");
+  const pageForm = document.getElementById("pageForm");
+  const formMessage = document.getElementById("formMessage");
+  const saveButton = document.getElementById("saveButton");
+  const createPanel = document.getElementById("createPanel");
+  const formTitle = document.getElementById("formTitle");
+  const cancelEditButton = document.getElementById("cancelEditButton");
+  const existingMediaContainer = document.getElementById("existingMedia");
+  const searchInput = document.getElementById("searchInput");
+
+  const portraitInput = document.getElementById("portrait_file");
+  const photosInput = document.getElementById("photos_files");
+  const videosInput = document.getElementById("videos_files");
+  const audioInput = document.getElementById("audio_file");
+
+  const BUCKET = "memorial-media";
+  const MAX_FILE_SIZE = 50 * 1024 * 1024;
+
+  let editingPageId = null;
+  let editingPage = null;
+  let removedPaths = new Set();
+  let allPages = [];
+  let currentQrUrl = "";
+
+  function showImagePreviews(input, container) {
+    container.replaceChildren();
+    Array.from(input.files || []).forEach(file => {
+      if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) return;
+      const image = document.createElement("img");
+      image.alt = "Предпросмотр фотографии";
+      image.src = URL.createObjectURL(file);
+      container.appendChild(image);
+    });
+  }
+
+  portraitInput.addEventListener("change", () => {
+    showImagePreviews(portraitInput, document.getElementById("portraitPreview"));
+  });
+
+  photosInput.addEventListener("change", () => {
+    showImagePreviews(photosInput, document.getElementById("photosPreview"));
+  });
+
+  videosInput.addEventListener("change", () => {
+    document.getElementById("videosNames").textContent =
+      Array.from(videosInput.files || []).map(file => file.name).join("\n");
+  });
+
+  audioInput.addEventListener("change", () => {
+    const file = audioInput.files[0];
+    document.getElementById("audioName").textContent = file ? file.name : "";
+  });
+
+  document.getElementById("showCreateButton").addEventListener("click", () => {
+    resetFormMode();
+    createPanel.hidden = false;
+    createPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.getElementById("full_name").focus();
+  });
+
+  searchInput.addEventListener("input", renderPages);
+
+  function getExtension(file) {
+    const parts = file.name.split(".");
+    return parts.length > 1 ? parts.pop().toLowerCase() : "bin";
+  }
+
+  function makeSafeName(value) {
+    return value.replace(/[^a-zA-Z0-9_-]/g, "_");
+  }
+
+  async function uploadFile(file, folder, userId, qrCode) {
+    const extension = getExtension(file);
+    const safeQr = makeSafeName(qrCode);
+    const path = userId + "/" + safeQr + "/" + folder + "/" +
+      Date.now() + "_" + Math.random().toString(36).slice(2) + "." + extension;
+
+    const { data, error } = await supabaseClient.storage
+      .from(BUCKET)
+      .upload(path, file, { upsert: false, contentType: file.type });
+
+    if (error) throw error;
+    return data.path;
+  }
+
+  function validateFile(file, allowedTypes) {
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error("Недопустимый формат файла: " + file.name);
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      throw new Error("Файл больше 50 МБ: " + file.name);
+    }
+  }
+
+  function normalizeMedia(items) {
+    if (!Array.isArray(items)) return [];
+    return items.map(item => {
+      if (typeof item === "string") {
+        return { path: item, name: item.split("/").pop(), type: "" };
+      }
+      if (item && item.path) {
+        return {
+          path: item.path,
+          name: item.name || item.path.split("/").pop(),
+          type: item.type || ""
+        };
+      }
+      return null;
+    }).filter(Boolean);
+  }
+
+  async function addExistingFileRow(label, path, kind = "file") {
+    if (!path) return;
+
+    const row = document.createElement("div");
+    row.className = "existing-file";
+
+    const info = document.createElement("div");
+    info.className = "existing-file-info";
+
+    const filename = document.createElement("span");
+    filename.textContent = label + ": " + path.split("/").pop();
+    info.appendChild(filename);
+
+    const { data: signedData, error: signedError } = await supabaseClient.storage
+      .from(BUCKET)
+      .createSignedUrl(path, 60 * 60);
+
+    if (signedError) {
+      console.error("Не удалось создать ссылку для файла:", path, signedError);
+      const note = document.createElement("small");
+      note.textContent = "Предпросмотр недоступен";
+      info.appendChild(note);
+    } else if (signedData && signedData.signedUrl) {
+      if (kind === "image") {
+        const image = document.createElement("img");
+        image.className = "existing-preview";
+        image.alt = label;
+        image.src = signedData.signedUrl;
+        info.insertBefore(image, filename);
+      } else if (kind === "video" || kind === "audio") {
+        const player = document.createElement(kind);
+        player.className = "existing-media-player";
+        player.controls = true;
+        player.preload = "metadata";
+        player.src = signedData.signedUrl;
+        info.appendChild(player);
+      }
+    }
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "small-button secondary";
+
+    function updateButton() {
+      const isRemoved = removedPaths.has(path);
+      button.textContent = isRemoved ? "Не удалять" : "Удалить";
+      button.className = isRemoved ? "small-button" : "small-button secondary";
+      filename.classList.toggle("removed-label", isRemoved);
+      filename.textContent = label + ": " + path.split("/").pop() +
+        (isRemoved ? " — будет удалён после сохранения" : "");
+      row.style.opacity = isRemoved ? "0.55" : "1";
+    }
+
+    button.addEventListener("click", () => {
+      if (removedPaths.has(path)) removedPaths.delete(path);
+      else removedPaths.add(path);
+      updateButton();
+    });
+
+    row.appendChild(info);
+    row.appendChild(button);
+    updateButton();
+    existingMediaContainer.appendChild(row);
+  }
+
+  async function renderExistingMedia() {
+    existingMediaContainer.replaceChildren();
+    if (!editingPage) return;
+
+    const heading = document.createElement("p");
+    heading.textContent =
+      "Уже загруженные материалы. Нажми «Удалить» рядом с файлом, если хочешь убрать его при сохранении.";
+    existingMediaContainer.appendChild(heading);
+
+    if (editingPage.portrait_url) {
+      await addExistingFileRow("Главная фотография", editingPage.portrait_url, "image");
+    }
+    for (const file of normalizeMedia(editingPage.photos)) {
+      await addExistingFileRow("Фотография галереи", file.path, "image");
+    }
+    for (const file of normalizeMedia(editingPage.videos)) {
+      await addExistingFileRow("Видеозапись", file.path, "video");
+    }
+    if (editingPage.audio_url) {
+      await addExistingFileRow("Аудиозапись", editingPage.audio_url, "audio");
+    }
+
+    if (existingMediaContainer.children.length === 1) {
+      const empty = document.createElement("p");
+      empty.className = "hint";
+      empty.textContent = "У этой страницы пока нет загруженных материалов.";
+      existingMediaContainer.appendChild(empty);
+    }
+  }
+
+  async function checkAccess() {
+    const { data: { user }, error } = await supabaseClient.auth.getUser();
+
+    if (error || !user) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    const { data: profile, error: roleError } = await supabaseClient
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .single();
+
+    if (roleError || !profile || profile.role !== "admin") {
+      statusElement.textContent = "У вас нет доступа к панели администратора.";
+      document.getElementById("showCreateButton").hidden = true;
+      return;
+    }
+
+    statusElement.textContent = "Вы вошли как администратор: " + user.email;
+    await loadPages();
+  }
+
+  async function loadPages() {
+    pagesList.textContent = "Загружаем страницы...";
+
+    const { data, error } = await supabaseClient
+      .from("memorial_pages")
+      .select("id, qr_code, full_name, birth_date, death_date, is_published")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      pagesList.textContent = "Не удалось загрузить страницы.";
+      console.error(error);
+      return;
+    }
+
+    allPages = data || [];
+    updateStatistics();
+    renderPages();
+  }
+
+  function updateStatistics() {
+    const total = allPages.length;
+    const published = allPages.filter(page => page.is_published).length;
+    document.getElementById("totalCount").textContent = total;
+    document.getElementById("publishedCount").textContent = published;
+    document.getElementById("draftCount").textContent = total - published;
+  }
+
+  function renderPages() {
+    const query = searchInput.value.trim().toLocaleLowerCase("ru");
+    const filtered = allPages.filter(page => {
+      const name = (page.full_name || "").toLocaleLowerCase("ru");
+      const qr = (page.qr_code || "").toLocaleLowerCase("ru");
+      return name.includes(query) || qr.includes(query);
+    });
+
+    document.getElementById("pagesCount").textContent =
+      "Показано: " + filtered.length + " из " + allPages.length;
+
+    pagesList.replaceChildren();
+
+    if (allPages.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "empty-state";
+      empty.textContent = "Пока страниц памяти нет. Создай первую страницу с помощью кнопки выше.";
+      pagesList.appendChild(empty);
+      return;
+    }
+
+    if (filtered.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "empty-state";
+      empty.textContent = "По этому запросу ничего не найдено.";
+      pagesList.appendChild(empty);
+      return;
+    }
+
+    const grid = document.createElement("div");
+    grid.className = "pages-grid";
+
+    filtered.forEach(page => {
+      const item = document.createElement("article");
+      item.className = "page-card";
+
+      const top = document.createElement("div");
+      top.className = "page-card-top";
+
+      const name = document.createElement("h3");
+      name.textContent = page.full_name || "Без имени";
+
+      const badge = document.createElement("span");
+      badge.className = "status-pill" + (page.is_published ? "" : " draft");
+      badge.textContent = page.is_published ? "Опубликована" : "Черновик";
+      top.append(name, badge);
+
+      const details = document.createElement("div");
+      details.className = "page-meta";
+      details.textContent =
+        "QR-код: " + (page.qr_code || "Не указан") + "\n" +
+        "Рождение: " + (page.birth_date || "Не указано") + "\n" +
+        "Уход: " + (page.death_date || "Не указано");
+
+      const actions = document.createElement("div");
+      actions.className = "card-actions";
+
+      const editButton = document.createElement("button");
+      editButton.type = "button";
+      editButton.className = "edit-button";
+      editButton.textContent = "Редактировать";
+      editButton.addEventListener("click", () => startEditing(page.id));
+
+      const previewButton = document.createElement("button");
+      previewButton.type = "button";
+      previewButton.className = "outline-button small-button";
+      previewButton.textContent = "Открыть страницу";
+      previewButton.disabled = !page.is_published || !page.qr_code;
+      previewButton.title = page.is_published
+        ? "Открыть публичную страницу памяти"
+        : "Сначала опубликуйте страницу";
+      previewButton.addEventListener("click", () => {
+        const url = "https://zhiv-pamyat.ru/memory.html?qr=" + encodeURIComponent(page.qr_code);
+        window.open(url, "_blank", "noopener");
+      });
+
+      const qrButton = document.createElement("button");
+      qrButton.type = "button";
+      qrButton.className = "outline-button small-button";
+      qrButton.textContent = "QR-код";
+      qrButton.disabled = !page.qr_code;
+      qrButton.addEventListener("click", () => openQrCode(page));
+
+      const deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.className = "delete-button small-button";
+      deleteButton.textContent = "Удалить";
+      deleteButton.addEventListener("click", () => deletePage(page));
+
+      actions.append(editButton, previewButton, qrButton, deleteButton);
+      item.append(top, details, actions);
+      grid.appendChild(item);
+    });
+
+    pagesList.appendChild(grid);
+  }
+
+  function openQrCode(page) {
+    if (typeof QRCode === "undefined") {
+      alert("Не удалось загрузить генератор QR-кодов. Проверь подключение к интернету и обнови страницу.");
+      return;
+    }
+
+    currentQrUrl = "https://zhiv-pamyat.ru/memory.html?qr=" + encodeURIComponent(page.qr_code);
+    document.getElementById("qrTitle").textContent = "QR-код: " + page.full_name;
+    document.getElementById("qrDescription").textContent =
+      "Этот код ведёт на страницу памяти. Его можно скачать и использовать для печати.";
+    const box = document.getElementById("qrCodeBox");
+    box.replaceChildren();
+
+    new QRCode(box, {
+      text: currentQrUrl,
+      width: 240,
+      height: 240,
+      colorDark: "#24352b",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H
+    });
+
+    document.getElementById("qrModal").classList.add("open");
+  }
+
+  document.getElementById("downloadQrButton").addEventListener("click", () => {
+    const box = document.getElementById("qrCodeBox");
+    const canvas = box.querySelector("canvas");
+    const image = box.querySelector("img");
+    let dataUrl = "";
+
+    if (canvas) {
+      dataUrl = canvas.toDataURL("image/png");
+    } else if (image && image.src) {
+      dataUrl = image.src;
+    }
+
+    if (!dataUrl) {
+      alert("QR-код ещё не сформирован. Попробуй нажать кнопку QR-кода ещё раз.");
+      return;
+    }
+
+    const link = document.createElement("a");
+    link.href = dataUrl;
+    link.download = "QR-" + (document.getElementById("qrTitle").textContent
+      .replace("QR-код: ", "").replace(/[^a-zA-Zа-яА-ЯёЁ0-9_-]/g, "_")) + ".png";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  });
+
+  function closeQrModal() {
+    document.getElementById("qrModal").classList.remove("open");
+  }
+  document.getElementById("closeQrButton").addEventListener("click", closeQrModal);
+  document.getElementById("qrModal").addEventListener("click", event => {
+    if (event.target.id === "qrModal") closeQrModal();
+  });
+
+  async function startEditing(id) {
+    formMessage.textContent = "Загружаем данные страницы...";
+    createPanel.hidden = false;
+    createPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    const { data, error } = await supabaseClient
+      .from("memorial_pages")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error || !data) {
+      formMessage.textContent = "Не удалось открыть страницу для редактирования.";
+      console.error(error);
+      return;
+    }
+
+    editingPageId = data.id;
+    editingPage = data;
+    removedPaths = new Set();
+
+    document.getElementById("full_name").value = data.full_name || "";
+    document.getElementById("qr_code").value = data.qr_code || "";
+    document.getElementById("birth_date").value = data.birth_date || "";
+    document.getElementById("death_date").value = data.death_date || "";
+    document.getElementById("biography").value = data.biography || "";
+    document.getElementById("is_published").checked = !!data.is_published;
+
+    portraitInput.value = "";
+    photosInput.value = "";
+    videosInput.value = "";
+    audioInput.value = "";
+
+    document.getElementById("portraitPreview").replaceChildren();
+    document.getElementById("photosPreview").replaceChildren();
+    document.getElementById("videosNames").textContent = "";
+    document.getElementById("audioName").textContent = "";
+
+    formTitle.textContent = "Редактировать страницу памяти";
+    saveButton.textContent = "Сохранить изменения";
+    cancelEditButton.hidden = false;
+    formMessage.textContent = "Загружаем предпросмотр материалов...";
+    await renderExistingMedia();
+    formMessage.textContent = "Изменяй нужные поля. Старые материалы сохранятся, если их не удалить.";
+  }
+
+  function resetFormMode() {
+    editingPageId = null;
+    editingPage = null;
+    removedPaths = new Set();
+
+    pageForm.reset();
+    document.getElementById("portraitPreview").replaceChildren();
+    document.getElementById("photosPreview").replaceChildren();
+    document.getElementById("videosNames").textContent = "";
+    document.getElementById("audioName").textContent = "";
+    existingMediaContainer.replaceChildren();
+
+    formTitle.textContent = "Создать страницу памяти";
+    saveButton.textContent = "Сохранить страницу";
+    cancelEditButton.hidden = true;
+    formMessage.textContent = "";
+  }
+
+  cancelEditButton.addEventListener("click", () => {
+    resetFormMode();
+    createPanel.hidden = true;
+  });
+
+  async function deletePage(page) {
+    if (!confirm("Удалить страницу «" + (page.full_name || "Без имени") + "»? Это действие нельзя отменить.")) {
+      return;
+    }
+
+    const { data: fullPage, error: readError } = await supabaseClient
+      .from("memorial_pages")
+      .select("portrait_url, photos, videos, audio_url")
+      .eq("id", page.id)
+      .single();
+
+    if (readError) {
+      alert("Не удалось получить данные страницы.");
+      console.error(readError);
+      return;
+    }
+
+    const paths = [];
+    if (fullPage.portrait_url) paths.push(fullPage.portrait_url);
+    if (fullPage.audio_url) paths.push(fullPage.audio_url);
+    normalizeMedia(fullPage.photos).forEach(file => paths.push(file.path));
+    normalizeMedia(fullPage.videos).forEach(file => paths.push(file.path));
+
+    const { error: deleteError } = await supabaseClient
+      .from("memorial_pages")
+      .delete()
+      .eq("id", page.id);
+
+    if (deleteError) {
+      alert("Не удалось удалить страницу.");
+      console.error(deleteError);
+      return;
+    }
+
+    if (paths.length) {
+      const { error: storageError } = await supabaseClient.storage
+        .from(BUCKET)
+        .remove([...new Set(paths)]);
+
+      if (storageError) {
+        console.error("Ошибка удаления файлов:", storageError);
+        alert("Страница удалена, но некоторые файлы остались в хранилище.");
+      }
+    }
+
+    if (editingPageId === page.id) {
+      resetFormMode();
+      createPanel.hidden = true;
+    }
+    await loadPages();
+  }
+
+  pageForm.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    saveButton.disabled = true;
+    cancelEditButton.disabled = true;
+    formMessage.textContent = "Подготавливаем материалы...";
+
+    const uploadedPaths = [];
+    const pathsToDeleteAfterSave = [];
+
+    try {
+      const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+      if (userError || !user) throw new Error("Сессия завершилась. Войдите заново.");
+
+      const fullName = document.getElementById("full_name").value.trim();
+      const qrCode = document.getElementById("qr_code").value.trim();
+
+      if (!fullName || !qrCode) throw new Error("Заполните ФИО и номер QR-кода.");
+
+      let duplicateQuery = supabaseClient
+        .from("memorial_pages")
+        .select("id")
+        .eq("qr_code", qrCode);
+
+      if (editingPageId !== null) duplicateQuery = duplicateQuery.neq("id", editingPageId);
+
+      const { data: existingPage, error: checkError } = await duplicateQuery.maybeSingle();
+      if (checkError) throw checkError;
+      if (existingPage) throw new Error("Этот номер QR-кода уже занят.");
+
+      const portraitFile = portraitInput.files[0] || null;
+      const photoFiles = Array.from(photosInput.files || []);
+      const videoFiles = Array.from(videosInput.files || []);
+      const audioFile = audioInput.files[0] || null;
+
+      if (portraitFile) validateFile(portraitFile, ["image/jpeg", "image/png", "image/webp"]);
+      for (const file of photoFiles) validateFile(file, ["image/jpeg", "image/png", "image/webp"]);
+      for (const file of videoFiles) validateFile(file, ["video/mp4"]);
+      if (audioFile) validateFile(audioFile, ["audio/mpeg", "audio/mp4", "audio/wav", "audio/ogg"]);
+
+      const oldPortrait = editingPage ? editingPage.portrait_url : null;
+      const oldAudio = editingPage ? editingPage.audio_url : null;
+
+      let nextPortrait = oldPortrait || null;
+      let nextAudio = oldAudio || null;
+
+      if (oldPortrait && removedPaths.has(oldPortrait)) {
+        nextPortrait = null;
+        pathsToDeleteAfterSave.push(oldPortrait);
+      }
+      if (oldAudio && removedPaths.has(oldAudio)) {
+        nextAudio = null;
+        pathsToDeleteAfterSave.push(oldAudio);
+      }
+
+      if (portraitFile) {
+        formMessage.textContent = "Загружаем главную фотографию...";
+        const path = await uploadFile(portraitFile, "portrait", user.id, qrCode);
+        uploadedPaths.push(path);
+        nextPortrait = path;
+        if (oldPortrait) pathsToDeleteAfterSave.push(oldPortrait);
+      }
+
+      if (audioFile) {
+        formMessage.textContent = "Загружаем аудиозапись...";
+        const path = await uploadFile(audioFile, "audio", user.id, qrCode);
+        uploadedPaths.push(path);
+        nextAudio = path;
+        if (oldAudio) pathsToDeleteAfterSave.push(oldAudio);
+      }
+
+      const nextPhotos = normalizeMedia(editingPage ? editingPage.photos : []);
+      const keptPhotos = [];
+      for (const file of nextPhotos) {
+        if (removedPaths.has(file.path)) pathsToDeleteAfterSave.push(file.path);
+        else keptPhotos.push(file);
+      }
+
+      const nextVideos = normalizeMedia(editingPage ? editingPage.videos : []);
+      const keptVideos = [];
+      for (const file of nextVideos) {
+        if (removedPaths.has(file.path)) pathsToDeleteAfterSave.push(file.path);
+        else keptVideos.push(file);
+      }
+
+      for (let i = 0; i < photoFiles.length; i++) {
+        formMessage.textContent = "Загружаем фотографию " + (i + 1) + " из " + photoFiles.length + "...";
+        const path = await uploadFile(photoFiles[i], "photos", user.id, qrCode);
+        uploadedPaths.push(path);
+        keptPhotos.push({ path, name: photoFiles[i].name, type: photoFiles[i].type });
+      }
+
+      for (let i = 0; i < videoFiles.length; i++) {
+        formMessage.textContent = "Загружаем видео " + (i + 1) + " из " + videoFiles.length + "...";
+        const path = await uploadFile(videoFiles[i], "videos", user.id, qrCode);
+        uploadedPaths.push(path);
+        keptVideos.push({ path, name: videoFiles[i].name, type: videoFiles[i].type });
+      }
+
+      const pageData = {
+        full_name: fullName,
+        qr_code: qrCode,
+        birth_date: document.getElementById("birth_date").value || null,
+        death_date: document.getElementById("death_date").value || null,
+        biography: document.getElementById("biography").value.trim() || null,
+        portrait_url: nextPortrait,
+        photos: keptPhotos,
+        videos: keptVideos,
+        audio_url: nextAudio,
+        is_published: document.getElementById("is_published").checked,
+        updated_at: new Date().toISOString()
+      };
+
+      formMessage.textContent = editingPageId === null ? "Сохраняем страницу..." : "Сохраняем изменения...";
+
+      let saveError;
+      if (editingPageId === null) {
+        const { error } = await supabaseClient.from("memorial_pages").insert([pageData]);
+        saveError = error;
+      } else {
+        const { error } = await supabaseClient.from("memorial_pages")
+          .update(pageData).eq("id", editingPageId);
+        saveError = error;
+      }
+      if (saveError) throw saveError;
+
+      let cleanupWarning = "";
+      const oldFilesToRemove = [...new Set(pathsToDeleteAfterSave)]
+        .filter(path => !uploadedPaths.includes(path));
+
+      if (oldFilesToRemove.length) {
+        const { error: storageError } = await supabaseClient.storage
+          .from(BUCKET).remove(oldFilesToRemove);
+        if (storageError) {
+          console.error("Не удалось удалить старые файлы:", storageError);
+          cleanupWarning = " Изменения сохранены, но часть старых файлов не удалось удалить из хранилища.";
+        }
+      }
+
+      resetFormMode();
+      createPanel.hidden = true;
+      await loadPages();
+      alert("Страница успешно сохранена." + cleanupWarning);
+
+    } catch (error) {
+      console.error(error);
+
+      if (uploadedPaths.length) {
+        const { error: cleanupError } = await supabaseClient.storage
+          .from(BUCKET).remove(uploadedPaths);
+        if (cleanupError) console.error("Ошибка очистки новых файлов:", cleanupError);
+      }
+
+      formMessage.textContent = "Ошибка: " + (error.message || "Не удалось сохранить страницу.");
+    } finally {
+      saveButton.disabled = false;
+      cancelEditButton.disabled = false;
+    }
+  });
+
+  document.getElementById("logoutButton").addEventListener("click", async () => {
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) {
+      alert("Не удалось выйти из аккаунта.");
+      console.error(error);
+      return;
+    }
+    window.location.href = "login.html";
+  });
+
+  checkAccess();
+</script>
+</body>
+</html>

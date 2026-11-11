@@ -1,0 +1,131 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вход — Живая память</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f7f3eb;
+      font-family: Arial, sans-serif;
+      color: #302f2a;
+    }
+
+    .login-card {
+      width: 90%;
+      max-width: 400px;
+      padding: 40px 30px;
+      background: #fffdf8;
+      border-radius: 18px;
+      box-shadow: 0 10px 40px rgba(53, 75, 62, 0.08);
+      text-align: center;
+    }
+
+    h1 {
+      color: #354b3e;
+      font-size: 27px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #77766e;
+      margin-bottom: 28px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 15px;
+      border: 1px solid #e5dfd3;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      background: #354b3e;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #293c31;
+    }
+
+    #message {
+      margin-top: 18px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <h1>Живая память</h1>
+    <p>Вход в панель управления</p>
+
+    <form id="loginForm">
+      <input
+        type="email"
+        id="email"
+        placeholder="Электронная почта"
+        required
+      >
+
+      <input
+        type="password"
+        id="password"
+        placeholder="Пароль"
+        required
+      >
+
+      <button type="submit">Войти</button>
+    </form>
+
+    <div id="message"></div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+
+<script>
+  const loginForm = document.getElementById("loginForm");
+  const message = document.getElementById("message");
+
+  loginForm.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    message.textContent = "Проверяем данные...";
+
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
+
+    if (error) {
+      message.textContent = "Ошибка входа. Проверьте почту и пароль.";
+      console.error(error);
+      return;
+    }
+
+    message.textContent = "Вход выполнен!";
+    window.location.href = "admin.html";
+  });
+</script>
+</body>
+</html>
