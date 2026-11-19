@@ -463,10 +463,22 @@
         </div>
       </div>
     </div>
+    </section>
+
+  <section class="panel" id="ordersPanel" hidden>
+    <div class="section-heading">
+      <h2>Зарегистрированные таблички</h2>
+      <button type="button" class="outline-button" id="refreshOrdersButton">
+        Обновить список
+      </button>
+    </div>
+
+    <div id="ordersList">
+      Загрузка заказов...
+    </div>
   </section>
 
   <section class="panel" id="createPanel" hidden>
-    <h2 id="formTitle">Создать страницу памяти</h2>
 
     <form id="pageForm">
       <label for="full_name">ФИО человека *</label>
@@ -570,7 +582,76 @@
   const cancelEditButton = document.getElementById("cancelEditButton");
   const existingMediaContainer = document.getElementById("existingMedia");
   const searchInput = document.getElementById("searchInput");
+// ===== СПИСОК ЗАРЕГИСТРИРОВАННЫХ ТАБЛИЧЕК =====
 
+const ordersPanel = document.getElementById("ordersPanel");
+const ordersList = document.getElementById("ordersList");
+
+async function loadQrOrders() {
+  ordersList.textContent = "Загружаем зарегистрированные таблички...";
+
+  const { data, error } = await supabaseClient
+    .from("qr_codes")
+    .select("qr_number, qr_url, status, customer_email, order_reference, memorial_page_id, created_at")
+    .in("status", ["reserved", "page_building", "moderation"])
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Ошибка загрузки заказов:", error);
+    ordersList.textContent = "Не удалось загрузить заказы. Проверь доступ к реестру QR.";
+    return;
+  }
+
+  ordersList.replaceChildren();
+
+  if (!data || data.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "empty-state";
+    empty.textContent = "Зарегистрированных табличек пока нет.";
+    ordersList.appendChild(empty);
+    return;
+  }
+
+  data.forEach(order => {
+    const card = document.createElement("div");
+    card.className = "page-card";
+
+    const title = document.createElement("h3");
+    title.textContent = "QR-" + order.qr_number;
+
+    const details = document.createElement("div");
+    details.className = "page-meta";
+    details.textContent =
+      "Статус: " + order.status + "\n" +
+      "Email: " + (order.customer_email || "Не указан") + "\n" +
+      "Заказ: " + (order.order_reference || "Не указан");
+
+    card.append(title, details);
+
+    if (order.memorial_page_id) {
+      const note = document.createElement("p");
+      note.className = "hint";
+      note.textContent = "Страница памяти уже связана с этой табличкой.";
+      card.appendChild(note);
+    } else if (order.status === "reserved") {
+      const createButton = document.createElement("button");
+      createButton.type = "button";
+      createButton.className = "primary-button";
+      createButton.textContent = "Создать страницу";
+
+      createButton.addEventListener("click", () => {
+        openPageForOrder(order.qr_number);
+      });
+
+      card.appendChild(createButton);
+    }
+
+    ordersList.appendChild(card);
+  });
+}
+
+document.getElementById("refreshOrdersButton")
+  .addEventListener("click", loadQrOrders);
   const portraitInput = document.getElementById("portrait_file");
   const photosInput = document.getElementById("photos_files");
   const videosInput = document.getElementById("videos_files");
@@ -578,7 +659,35 @@
 
   const BUCKET = "memorial-media";
   const MAX_FILE_SIZE = 50 * 1024 * 1024;
+// QR-код заказа, для которого создаётся страница
+let selectedOrderQrNumber = null;
 
+function openPageForOrder(qrNumber) {
+
+  // Сначала очищаем форму
+  resetFormMode();
+
+  // Затем запоминаем выбранный заказ
+  selectedOrderQrNumber = qrNumber;
+
+  // Открываем форму создания страницы
+  createPanel.hidden = false;
+
+  // Подставляем номер QR-кода
+  document.getElementById("qr_code").value = qrNumber;
+
+  // Запрещаем менять номер вручную
+  document.getElementById("qr_code").readOnly = true;
+
+  // Меняем заголовок
+  formTitle.textContent = "Создание страницы по заказу QR-" + qrNumber;
+
+  // Прокручиваем к форме
+  createPanel.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+}
   let editingPageId = null;
   let editingPage = null;
   let removedPaths = new Set();
@@ -1145,9 +1254,12 @@ button.addEventListener("click", () => {
       return;
     }
 
-    statusElement.textContent = "Вы вошли как администратор: " + user.email;
-        qrPanel.hidden = false;
-    await loadPages();
+   statusElement.textContent = "Вы вошли как администратор: " + user.email;
+qrPanel.hidden = false;
+ordersPanel.hidden = false;
+
+await loadPages();
+await loadQrOrders();
   }
 
   async function loadPages() {
@@ -1396,6 +1508,12 @@ formMessage.textContent = "Изменяй нужные поля. Старые м
     saveButton.textContent = "Сохранить страницу";
     cancelEditButton.hidden = true;
     formMessage.textContent = "";
+    selectedOrderQrNumber = null;
+
+
+
+    
+document.getElementById("qr_code").readOnly = false;
     updateMemoryPreview();
   }
 
@@ -1456,7 +1574,7 @@ formMessage.textContent = "Изменяй нужные поля. Старые м
     await loadPages();
   }
 
-  pageForm.addEventListener("submit", async event => {
+  pageForm.addEventListener("submit" , async event => {
     event.preventDefault();
 
     saveButton.disabled = true;
@@ -1464,6 +1582,7 @@ formMessage.textContent = "Изменяй нужные поля. Старые м
     formMessage.textContent = "Подготавливаем материалы...";
 
     const uploadedPaths = [];
+    let pageSavedSuccessfully = false;
     const pathsToDeleteAfterSave = [];
 
     try {
@@ -1472,7 +1591,12 @@ formMessage.textContent = "Изменяй нужные поля. Старые м
 
       const fullName = document.getElementById("full_name").value.trim();
       const qrCode = document.getElementById("qr_code").value.trim();
+// Проверяем, создаём ли страницу из зарегистрированного заказа
+const isOrderCreation = editingPageId === null && selectedOrderQrNumber !== null;
 
+if (isOrderCreation && qrCode !== selectedOrderQrNumber) {
+  throw new Error("Номер QR-кода не совпадает с выбранным заказом.");
+}
       if (!fullName || !qrCode) throw new Error("Заполните ФИО и номер QR-кода.");
 
       let duplicateQuery = supabaseClient
@@ -1571,17 +1695,40 @@ formMessage.textContent = "Изменяй нужные поля. Старые м
 
       formMessage.textContent = editingPageId === null ? "Сохраняем страницу..." : "Сохраняем изменения...";
 
-      let saveError;
-      if (editingPageId === null) {
-        const { error } = await supabaseClient.from("memorial_pages").insert([pageData]);
-        saveError = error;
-      } else {
-        const { error } = await supabaseClient.from("memorial_pages")
-          .update(pageData).eq("id", editingPageId);
-        saveError = error;
-      }
-      if (saveError) throw saveError;
+let saveError;
 
+if (editingPageId === null && isOrderCreation) {
+  formMessage.textContent = "Создаём страницу и привязываем QR-код...";
+
+  const { data, error } = await supabaseClient.rpc(
+    "create_memorial_page_for_order",
+    {
+      p_qr_number: selectedOrderQrNumber,
+      p_page_data: pageData
+    }
+  );
+
+  if (error) throw error;
+  if (!data) throw new Error("Страница создана не была.");
+
+} else if (editingPageId === null) {
+  const { error } = await supabaseClient
+    .from("memorial_pages")
+    .insert([pageData]);
+
+  saveError = error;
+
+} else {
+  const { error } = await supabaseClient
+    .from("memorial_pages")
+    .update(pageData)
+    .eq("id", editingPageId);
+
+  saveError = error;
+}
+
+if (saveError) throw saveError;
+pageSavedSuccessfully = true;
       let cleanupWarning = "";
       const oldFilesToRemove = [...new Set(pathsToDeleteAfterSave)]
         .filter(path => !uploadedPaths.includes(path));
@@ -1595,15 +1742,25 @@ formMessage.textContent = "Изменяй нужные поля. Старые м
         }
       }
 
-      resetFormMode();
-      createPanel.hidden = true;
-      await loadPages();
-      alert("Страница успешно сохранена." + cleanupWarning);
+resetFormMode();
+
+// Сбрасываем выбранный заказ
+selectedOrderQrNumber = null;
+
+// Разрешаем ручной ввод QR-кода
+document.getElementById("qr_code").readOnly = false;
+
+createPanel.hidden = true;
+
+await loadPages();
+await loadQrOrders();
+
+alert("Страница успешно сохранена." + cleanupWarning);
 
     } catch (error) {
       console.error(error);
 
-      if (uploadedPaths.length) {
+if (uploadedPaths.length && !pageSavedSuccessfully) {
         const { error: cleanupError } = await supabaseClient.storage
           .from(BUCKET).remove(uploadedPaths);
         if (cleanupError) console.error("Ошибка очистки новых файлов:", cleanupError);
