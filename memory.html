@@ -466,26 +466,30 @@
       return `${parts[2]}.${parts[1]}.${parts[0]}`;
     }
 
-    function renderBiography(biography) {
-      const container = document.getElementById("biography");
-      container.innerHTML = "";
+   function renderBiography(biography) {
+  const container = document.getElementById("biography");
+  const section = document.getElementById("biography-section");
 
-      if (!biography || !biography.trim()) {
-        document.getElementById("biography-section").style.display = "none";
-        return;
-      }
+  container.innerHTML = "";
 
-      const paragraphs = biography
-        .split(/\n+/)
-        .map(text => text.trim())
-        .filter(Boolean);
+  if (!biography || !biography.trim()) {
+    section.style.display = "none";
+    return;
+  }
 
-      paragraphs.forEach(text => {
-        const paragraph = document.createElement("p");
-        paragraph.textContent = text;
-        container.appendChild(paragraph);
-      });
-    }
+  section.style.display = "block";
+
+  const paragraphs = biography
+    .split(/\n+/)
+    .map(text => text.trim())
+    .filter(Boolean);
+
+  paragraphs.forEach(text => {
+    const paragraph = document.createElement("p");
+    paragraph.textContent = text;
+    container.appendChild(paragraph);
+  });
+}
 
     function renderGallery(photos) {
       const section = document.getElementById("gallery-section");
@@ -599,6 +603,7 @@
 
       if (page.portrait_url) {
         portrait.src = page.portrait_url;
+        portraitFrame.style.display = "";
         portrait.alt = `Портрет: ${page.full_name || "человека"}`;
 
         portrait.onerror = () => {
@@ -691,7 +696,21 @@
       }
     });
 
-    loadMemorial();
+    const previewMode = new URLSearchParams(window.location.search).get("preview") === "1";
+
+    if (previewMode) {
+      statusBlock.querySelector("h2").textContent = "Предварительный просмотр";
+      statusBlock.querySelector("p").textContent = "Изменения будут отображаться здесь.";
+
+      window.addEventListener("message", event => {
+        if (event.origin !== window.location.origin) return;
+        if (!event.data || event.data.type !== "MEMORY_PREVIEW") return;
+
+        renderPage(event.data.page || {});
+      });
+    } else {
+      loadMemorial();
+    }
   </script>
 </body>
 </html>
