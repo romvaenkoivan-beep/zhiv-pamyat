@@ -300,7 +300,31 @@
     .qr-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 
     [hidden] { display: none !important; }
+    .preview-panel {
+      margin-top: 30px;
+      padding-top: 25px;
+      border-top: 1px solid #e5dfd3;
+    }
 
+    .preview-panel h2 {
+      margin-bottom: 8px;
+    }
+
+    .preview-frame-wrap {
+      margin-top: 16px;
+      overflow: hidden;
+      border: 1px solid #d9d5ca;
+      border-radius: 12px;
+      background: #f2f0ea;
+    }
+
+    #memoryPreview {
+      display: block;
+      width: 100%;
+      height: 900px;
+      border: 0;
+      background: #f2f0ea;
+    }
     @media (max-width: 760px) {
       header { padding: 22px; }
       main { margin-top: 20px; padding: 0 13px 30px; }
@@ -398,6 +422,18 @@
       </div>
       <p id="formMessage" class="status"></p>
     </form>
+
+<div class="preview-panel">
+  <h2>Предварительный просмотр страницы</h2>
+  <p class="hint">Так страница будет выглядеть для посетителей. Изменения пока не сохраняются.</p>
+  <div class="preview-frame-wrap">
+    <iframe
+      id="memoryPreview"
+      title="Предварительный просмотр страницы памяти"
+      src="memory.html?preview=1">
+    </iframe>
+  </div>
+</div>
   </section>
 
   <section class="panel">
@@ -451,8 +487,17 @@
   let editingPageId = null;
   let editingPage = null;
   let removedPaths = new Set();
+  const memoryPreview = document.getElementById("memoryPreview");
+let previewFrameReady = false;
   let allPages = [];
   let currentQrUrl = "";
+  memoryPreview.addEventListener("load", () => {
+  previewFrameReady = true;
+  updateMemoryPreview();
+});
+["full_name", "birth_date", "death_date", "biography"].forEach(id => {
+  document.getElementById(id).addEventListener("input", updateMemoryPreview);
+});
 
   function showImagePreviews(input, container) {
     container.replaceChildren();
@@ -466,22 +511,28 @@
   }
 
   portraitInput.addEventListener("change", () => {
-    showImagePreviews(portraitInput, document.getElementById("portraitPreview"));
-  });
+  showImagePreviews(portraitInput, document.getElementById("portraitPreview"));
+  updateMemoryPreview();
+});
 
-  photosInput.addEventListener("change", () => {
-    showImagePreviews(photosInput, document.getElementById("photosPreview"));
-  });
+photosInput.addEventListener("change", () => {
+  showImagePreviews(photosInput, document.getElementById("photosPreview"));
+  updateMemoryPreview();
+});
 
-  videosInput.addEventListener("change", () => {
-    document.getElementById("videosNames").textContent =
-      Array.from(videosInput.files || []).map(file => file.name).join("\n");
-  });
+videosInput.addEventListener("change", () => {
+  document.getElementById("videosNames").textContent =
+    Array.from(videosInput.files || []).map(file => file.name).join("\n");
 
-  audioInput.addEventListener("change", () => {
-    const file = audioInput.files[0];
-    document.getElementById("audioName").textContent = file ? file.name : "";
-  });
+  updateMemoryPreview();
+});
+
+audioInput.addEventListener("change", () => {
+  const file = audioInput.files[0];
+  document.getElementById("audioName").textContent = file ? file.name : "";
+
+  updateMemoryPreview();
+});
 
   document.getElementById("showCreateButton").addEventListener("click", () => {
     resetFormMode();
@@ -540,6 +591,132 @@
       return null;
     }).filter(Boolean);
   }
+  async function getPreviewFileUrl(path) {
+  if (!path) return null;
+
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    return path;
+  }
+
+  const { data, error } = await supabaseClient.storage
+    .from(BUCKET)
+    .createSignedUrl(path, 60 * 60);
+
+  if (error || !data) {
+    console.error("Не удалось получить ссылку для предпросмотра:", error);
+    return null;
+  }
+
+  return data.signedUrl;
+}
+const previewObjectUrls = new WeakMap();
+let previewUpdateId = 0;
+
+function getLocalPreviewUrl(file) {
+  if (!file) return null;
+
+  if (!previewObjectUrls.has(file)) {
+    previewObjectUrls.set(file, URL.createObjectURL(file));
+  }
+
+  return previewObjectUrls.get(file);
+}
+
+async function updateMemoryPreview() {
+  if (!previewFrameReady || !memoryPreview.contentWindow) return;
+
+  const updateId = ++previewUpdateId;
+
+  const page = {
+    full_name: document.getElementById("full_name").value.trim(),
+    birth_date: document.getElementById("birth_date").value,
+    death_date: document.getElementById("death_date").value,
+    biography: document.getElementById("biography").value,
+    portrait_url: null,
+    photos: [],
+    videos: [],
+    audio_url: null
+  };
+
+  // Главная фотография
+  const newPortrait = portraitInput.files[0];
+
+  if (newPortrait) {
+    page.portrait_url = getLocalPreviewUrl(newPortrait);
+  } else if (editingPage && editingPage.portrait_url) {
+    if (!removedPaths.has(editingPage.portrait_url)) {
+      page.portrait_url = await getPreviewFileUrl(editingPage.portrait_url);
+    }
+  }
+
+  // Старые фотографии галереи
+  if (editingPage) {
+    const oldPhotos = normalizeMedia(editingPage.photos)
+      .filter(file => !removedPaths.has(file.path));
+
+    const photoUrls = await Promise.all(
+      oldPhotos.map(async file => ({
+        url: await getPreviewFileUrl(file.path),
+        name: file.name
+      }))
+    );
+
+    page.photos.push(...photoUrls.filter(photo => photo.url));
+  }
+
+  // Новые фотографии
+  for (const file of photosInput.files) {
+    page.photos.push({
+      url: getLocalPreviewUrl(file),
+      name: file.name
+    });
+  }
+
+  // Старые видеозаписи
+  if (editingPage) {
+    const oldVideos = normalizeMedia(editingPage.videos)
+      .filter(file => !removedPaths.has(file.path));
+
+    const videoUrls = await Promise.all(
+      oldVideos.map(async file => ({
+        url: await getPreviewFileUrl(file.path),
+        name: file.name
+      }))
+    );
+
+    page.videos.push(...videoUrls.filter(video => video.url));
+  }
+
+  // Новые видеозаписи
+  for (const file of videosInput.files) {
+    page.videos.push({
+      url: getLocalPreviewUrl(file),
+      name: file.name
+    });
+  }
+
+  // Аудиозапись
+  const newAudio = audioInput.files[0];
+
+  if (newAudio) {
+    page.audio_url = getLocalPreviewUrl(newAudio);
+  } else if (editingPage && editingPage.audio_url) {
+    if (!removedPaths.has(editingPage.audio_url)) {
+      page.audio_url = await getPreviewFileUrl(editingPage.audio_url);
+    }
+  }
+
+  // Не отправляем устаревший результат, если уже началось новое обновление
+  if (updateId !== previewUpdateId) return;
+
+  memoryPreview.contentWindow.postMessage(
+    {
+      type: "MEMORY_PREVIEW",
+      page: page
+    },
+    window.location.origin
+  );
+}
 
   async function addExistingFileRow(label, path, kind = "file") {
     if (!path) return;
@@ -594,11 +771,13 @@
       row.style.opacity = isRemoved ? "0.55" : "1";
     }
 
-    button.addEventListener("click", () => {
-      if (removedPaths.has(path)) removedPaths.delete(path);
-      else removedPaths.add(path);
-      updateButton();
-    });
+button.addEventListener("click", () => {
+  if (removedPaths.has(path)) removedPaths.delete(path);
+  else removedPaths.add(path);
+
+  updateButton();
+  updateMemoryPreview();
+});
 
     row.appendChild(info);
     row.appendChild(button);
@@ -850,7 +1029,7 @@
 
     const { data, error } = await supabaseClient
       .from("memorial_pages")
-      .select("*")
+      .select("id, qr_code, full_name, birth_date, death_date, biography, portrait_url, photos, videos, audio_url, is_published, updated_at, created_at")
       .eq("id", id)
       .single();
 
@@ -885,8 +1064,9 @@
     saveButton.textContent = "Сохранить изменения";
     cancelEditButton.hidden = false;
     formMessage.textContent = "Загружаем предпросмотр материалов...";
-    await renderExistingMedia();
-    formMessage.textContent = "Изменяй нужные поля. Старые материалы сохранятся, если их не удалить.";
+await renderExistingMedia();
+await updateMemoryPreview();
+formMessage.textContent = "Изменяй нужные поля. Старые материалы сохранятся, если их не удалить.";
   }
 
   function resetFormMode() {
@@ -905,6 +1085,7 @@
     saveButton.textContent = "Сохранить страницу";
     cancelEditButton.hidden = true;
     formMessage.textContent = "";
+    updateMemoryPreview();
   }
 
   cancelEditButton.addEventListener("click", () => {
