@@ -299,6 +299,50 @@
     #qrCodeBox img, #qrCodeBox canvas { max-width: 100%; height: auto; }
     .qr-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 
+
+.qr-registration {
+  border: 1px solid #dce3d9;
+}
+
+.qr-registration-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+}
+
+.qr-scanner-box {
+  min-height: 180px;
+  padding: 15px;
+  border: 1px dashed #bfc8bd;
+  border-radius: 12px;
+  background: #faf8f2;
+}
+
+#qrReader {
+  width: 100%;
+  max-width: 500px;
+  margin: 15px auto;
+}
+
+.qr-result {
+  margin-top: 15px;
+  padding: 14px;
+  border-radius: 10px;
+  background: #edf0e9;
+  line-height: 1.6;
+}
+
+.qr-result.error {
+  background: #f8e9e6;
+  color: #9b4942;
+}
+
+@media (max-width: 760px) {
+  .qr-registration-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
     [hidden] { display: none !important; }
     .preview-panel {
       margin-top: 30px;
@@ -368,6 +412,56 @@
     <div class="stat-card">
       <div class="stat-label">Черновики</div>
       <div class="stat-number" id="draftCount">—</div>
+    </div>
+  </section>
+
+  <section class="panel qr-registration" id="qrRegistrationPanel" hidden>
+    <h2>Регистрация таблички</h2>
+    <p class="hint">
+      Отсканируй QR-код подготовленной таблички.
+      Система проверит его наличие и статус.
+    </p>
+
+    <div class="qr-registration-grid">
+      <div>
+        <div class="qr-scanner-box">
+          <button type="button" id="startQrScanner">
+            Включить камеру
+          </button>
+          <div id="qrReader"></div>
+          <button type="button" id="stopQrScanner" class="secondary" hidden>
+            Остановить камеру
+          </button>
+        </div>
+
+        <label for="manualQrNumber">Или введи номер вручную</label>
+        <input id="manualQrNumber" type="text"
+          placeholder="Например, 057" maxlength="4">
+        <button type="button" id="checkManualQr" style="margin-top:10px">
+          Проверить номер
+        </button>
+      </div>
+
+      <div>
+        <div id="qrRegistrationResult" class="qr-result">
+          Ожидаем сканирования QR-кода.
+        </div>
+
+        <div id="qrOrderForm" hidden>
+          <label for="qrCustomerEmail">Email клиента *</label>
+          <input type="email" id="qrCustomerEmail"
+            placeholder="client@example.com" required>
+
+          <label for="qrOrderReference">Номер заказа</label>
+          <input type="text" id="qrOrderReference"
+            placeholder="Например, ZP-0001">
+
+          <button type="button" id="registerQrButton"
+            style="margin-top:16px">
+            Зарегистрировать табличку
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -462,6 +556,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="supabase-config.js"></script>
 
 <script>
@@ -815,6 +910,221 @@ button.addEventListener("click", () => {
     }
   }
 
+  // ===== РЕГИСТРАЦИЯ QR-ТАБЛИЧЕК =====
+
+  let qrScanner = null;
+  let selectedQrNumber = null;
+
+  const qrPanel = document.getElementById("qrRegistrationPanel");
+  const qrResult = document.getElementById("qrRegistrationResult");
+  const qrOrderForm = document.getElementById("qrOrderForm");
+
+  function showQrResult(message, isError = false) {
+    qrResult.textContent = message;
+    qrResult.classList.toggle("error", isError);
+  }
+
+  function extractQrNumber(rawValue) {
+    const value = String(rawValue || "").trim();
+
+    // QR может содержать полный адрес сайта
+    const match = value.match(/\/q\/(\d{3,4})\/?/i);
+
+    if (match) {
+      return match[1].padStart(3, "0");
+    }
+
+    // Или только номер
+    const numberMatch = value.match(/^(?:QR-)?(\d{1,4})$/i);
+
+    if (numberMatch) {
+      const number = Number(numberMatch[1]);
+
+      if (number >= 1 && number <= 1000) {
+        return String(number).padStart(3, "0");
+      }
+    }
+
+    return null;
+  }
+
+  async function checkQrAvailability(rawValue) {
+    const qrNumber = extractQrNumber(rawValue);
+
+    selectedQrNumber = null;
+    qrOrderForm.hidden = true;
+
+    if (!qrNumber) {
+      showQrResult("Не удалось определить номер QR-кода.", true);
+      return;
+    }
+
+    showQrResult("Проверяем QR-" + qrNumber + "...");
+
+    const { data, error } = await supabaseClient
+      .from("qr_codes")
+      .select("qr_number, qr_url, status")
+      .eq("qr_number", qrNumber)
+      .maybeSingle();
+
+    if (error) {
+      console.error(error);
+      showQrResult("Ошибка проверки QR-кода. Проверь доступ к реестру.", true);
+      return;
+    }
+
+    if (!data) {
+      showQrResult("QR-" + qrNumber + " отсутствует в реестре.", true);
+      return;
+    }
+
+    if (data.status !== "available") {
+      showQrResult(
+        "QR-" + qrNumber + " уже недоступен для регистрации. Статус: " +
+        data.status,
+        true
+      );
+      return;
+    }
+
+    selectedQrNumber = qrNumber;
+
+    showQrResult(
+      "QR-" + qrNumber + " свободен. Можно зарегистрировать табличку."
+    );
+
+    qrOrderForm.hidden = false;
+  }
+
+  document.getElementById("checkManualQr")
+    .addEventListener("click", () => {
+      checkQrAvailability(
+        document.getElementById("manualQrNumber").value
+      );
+    });
+
+  document.getElementById("startQrScanner")
+    .addEventListener("click", async () => {
+      if (typeof Html5Qrcode === "undefined") {
+        showQrResult("Не загрузилась библиотека сканирования QR.", true);
+        return;
+      }
+
+      try {
+        qrScanner = new Html5Qrcode("qrReader");
+
+        document.getElementById("startQrScanner").hidden = true;
+        document.getElementById("stopQrScanner").hidden = false;
+
+        await qrScanner.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: { width: 250, height: 250 } },
+          async decodedText => {
+            await stopQrCamera();
+            document.getElementById("manualQrNumber").value =
+              extractQrNumber(decodedText) || "";
+            await checkQrAvailability(decodedText);
+          },
+          () => {}
+        );
+      } catch (error) {
+        console.error(error);
+        showQrResult(
+          "Не удалось включить камеру. Проверь разрешение браузера.",
+          true
+        );
+        document.getElementById("startQrScanner").hidden = false;
+        document.getElementById("stopQrScanner").hidden = true;
+      }
+    });
+
+  async function stopQrCamera() {
+    if (qrScanner) {
+      try {
+        if (qrScanner.isScanning) {
+          await qrScanner.stop();
+        }
+        qrScanner.clear();
+      } catch (error) {
+        console.error(error);
+      }
+
+      qrScanner = null;
+    }
+
+    document.getElementById("startQrScanner").hidden = false;
+    document.getElementById("stopQrScanner").hidden = true;
+  }
+
+  document.getElementById("stopQrScanner")
+    .addEventListener("click", stopQrCamera);
+
+  document.getElementById("registerQrButton")
+    .addEventListener("click", async () => {
+      if (!selectedQrNumber) {
+        showQrResult("Сначала проверь свободный QR-код.", true);
+        return;
+      }
+
+      const email = document.getElementById("qrCustomerEmail")
+        .value.trim();
+
+      const orderReference = document.getElementById("qrOrderReference")
+        .value.trim();
+
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showQrResult("Введи корректный email клиента.", true);
+        return;
+      }
+
+      const button = document.getElementById("registerQrButton");
+      button.disabled = true;
+
+      try {
+        const { data, error } = await supabaseClient
+          .from("qr_codes")
+          .update({
+            status: "reserved",
+            customer_email: email,
+            order_reference: orderReference || null,
+            updated_at: new Date().toISOString()
+          })
+          .eq("qr_number", selectedQrNumber)
+          .eq("status", "available")
+          .select("qr_number")
+          .maybeSingle();
+
+        if (error) throw error;
+
+        if (!data) {
+          throw new Error(
+            "Этот QR-код уже занят или изменён другим сотрудником."
+          );
+        }
+
+        showQrResult(
+          "QR-" + data.qr_number +
+          " успешно зарегистрирован за заказом клиента " + email + "."
+        );
+
+        selectedQrNumber = null;
+        qrOrderForm.hidden = true;
+
+        document.getElementById("qrCustomerEmail").value = "";
+        document.getElementById("qrOrderReference").value = "";
+        document.getElementById("manualQrNumber").value = "";
+
+      } catch (error) {
+        console.error(error);
+        showQrResult(
+          "Не удалось зарегистрировать табличку: " + error.message,
+          true
+        );
+      } finally {
+        button.disabled = false;
+      }
+    });
+
   async function checkAccess() {
     const { data: { user }, error } = await supabaseClient.auth.getUser();
 
@@ -836,6 +1146,7 @@ button.addEventListener("click", () => {
     }
 
     statusElement.textContent = "Вы вошли как администратор: " + user.email;
+        qrPanel.hidden = false;
     await loadPages();
   }
 
